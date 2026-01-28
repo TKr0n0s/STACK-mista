@@ -47,5 +47,5 @@ __pycache__/
 venv/
 .venv/
 
-# Skills index (generated)
-.agent/skills/skills_index.json
+# Skills index is generated but we include it for easy setup
+# .agent/skills/skills_index.json
