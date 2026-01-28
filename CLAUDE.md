@@ -1,10 +1,6 @@
----
-trigger: always_on
----
+# CLAUDE.md - Antigravity Agent Kit
 
-# GEMINI.md - Antigravity Kit
-
-> This file defines how the AI behaves in this workspace.
+> This file defines how Claude Code behaves in this workspace.
 
 ---
 
@@ -17,17 +13,17 @@ trigger: always_on
 Agent activated → Check frontmatter "skills:" → Read SKILL.md (INDEX) → Read specific sections.
 
 - **Selective Reading:** DO NOT read ALL files in a skill folder. Read `SKILL.md` first, then only read sections matching the user's request.
-- **Rule Priority:** P0 (GEMINI.md) > P1 (Agent .md) > P2 (SKILL.md). All rules are binding.
+- **Rule Priority:** P0 (CLAUDE.md) > P1 (Agent .md) > P2 (SKILL.md). All rules are binding.
 
 ### 2. Enforcement Protocol
 
 1. **When agent is activated:**
-    - ✅ Activate: Read Rules → Check Frontmatter → Load SKILL.md → Apply All.
+    - Activate: Read Rules → Check Frontmatter → Load SKILL.md → Apply All.
 2. **Forbidden:** Never skip reading agent rules or skill instructions. "Read → Understand → Apply" is mandatory.
 
 ---
 
-## 📥 REQUEST CLASSIFIER (STEP 1)
+## REQUEST CLASSIFIER (STEP 1)
 
 **Before ANY action, classify the request:**
 
@@ -42,7 +38,7 @@ Agent activated → Check frontmatter "skills:" → Read SKILL.md (INDEX) → Re
 
 ---
 
-## 🤖 INTELLIGENT AGENT ROUTING (STEP 2 - AUTO)
+## INTELLIGENT AGENT ROUTING (STEP 2 - AUTO)
 
 **ALWAYS ACTIVE: Before responding to ANY request, automatically analyze and select the best agent(s).**
 
@@ -83,7 +79,7 @@ Agent activated → Check frontmatter "skills:" → Read SKILL.md (INDEX) → Re
 When auto-applying an agent, inform the user:
 
 ```markdown
-🤖 **Applying knowledge of @agent-name...**
+**Applying knowledge of @agent-name...**
 
 [Continue with specialized response]
 ```
@@ -94,31 +90,31 @@ When auto-applying an agent, inform the user:
 2. **Respect Overrides**: If user mentions `@agent`, use it.
 3. **Complex Tasks**: For multi-domain requests, use `orchestrator` and ask Socratic questions first.
 
-### ⚠️ AGENT ROUTING CHECKLIST (MANDATORY BEFORE EVERY CODE/DESIGN RESPONSE)
+### AGENT ROUTING CHECKLIST (MANDATORY BEFORE EVERY CODE/DESIGN RESPONSE)
 
 **Before ANY code or design work, you MUST complete this mental checklist:**
 
 | Step | Check | If Unchecked |
 |------|-------|--------------|
-| 1 | Did I identify the correct agent for this domain? | → STOP. Analyze request domain first. |
-| 2 | Did I READ the agent's `.md` file (or recall its rules)? | → STOP. Open `.agent/agents/{agent}.md` |
-| 3 | Did I announce `🤖 Applying knowledge of @[agent]...`? | → STOP. Add announcement before response. |
-| 4 | Did I load required skills from agent's frontmatter? | → STOP. Check `skills:` field and read them. |
+| 1 | Did I identify the correct agent for this domain? | STOP. Analyze request domain first. |
+| 2 | Did I READ the agent's `.md` file (or recall its rules)? | STOP. Open `.agent/agents/{agent}.md` |
+| 3 | Did I announce `Applying knowledge of @[agent]...`? | STOP. Add announcement before response. |
+| 4 | Did I load required skills from agent's frontmatter? | STOP. Check `skills:` field and read them. |
 
 **Failure Conditions:**
 
-- ❌ Writing code without identifying an agent = **PROTOCOL VIOLATION**
-- ❌ Skipping the announcement = **USER CANNOT VERIFY AGENT WAS USED**
-- ❌ Ignoring agent-specific rules (e.g., Purple Ban) = **QUALITY FAILURE**
+- Writing code without identifying an agent = **PROTOCOL VIOLATION**
+- Skipping the announcement = **USER CANNOT VERIFY AGENT WAS USED**
+- Ignoring agent-specific rules (e.g., Purple Ban) = **QUALITY FAILURE**
 
-> 🔴 **Self-Check Trigger:** Every time you are about to write code or create UI, ask yourself:
+> **Self-Check Trigger:** Every time you are about to write code or create UI, ask yourself:
 > "Have I completed the Agent Routing Checklist?" If NO → Complete it first.
 
 ---
 
 ## TIER 0: UNIVERSAL RULES (Always Active)
 
-### 🌐 Language Handling
+### Language Handling
 
 When user's prompt is NOT in English:
 
@@ -126,7 +122,7 @@ When user's prompt is NOT in English:
 2. **Respond in user's language** - match their communication
 3. **Code comments/variables** remain in English
 
-### 🧹 Clean Code (Global Mandatory)
+### Clean Code (Global Mandatory)
 
 **ALL code MUST follow `@clean-code` rules. No exceptions.**
 
@@ -135,7 +131,7 @@ When user's prompt is NOT in English:
 - **Performance**: Measure first. Adhere to 2025 standards (Core Web Vitals).
 - **Infra/Safety**: 5-Phase Deployment. Verify secrets security.
 
-### 📁 File Dependency Awareness
+### File Dependency Awareness
 
 **Before modifying ANY file:**
 
@@ -143,21 +139,21 @@ When user's prompt is NOT in English:
 2. Identify dependent files
 3. Update ALL affected files together
 
-### 🗺️ System Map Read
+### System Map Read
 
-> 🔴 **MANDATORY:** Read `ARCHITECTURE.md` at session start to understand Agents, Skills, and Scripts.
+> **MANDATORY:** Read `.agent/ARCHITECTURE.md` at session start to understand Agents, Skills, and Scripts.
 
 **Path Awareness:**
 
-- Agents: `.agent/` (Project)
+- Agents: `.agent/agents/` (Project)
 - Skills: `.agent/skills/` (Project)
 - Runtime Scripts: `.agent/skills/<skill>/scripts/`
 
-### 🧠 Read → Understand → Apply
+### Read → Understand → Apply
 
 ```
-❌ WRONG: Read agent file → Start coding
-✅ CORRECT: Read → Understand WHY → Apply PRINCIPLES → Code
+WRONG: Read agent file → Start coding
+CORRECT: Read → Understand WHY → Apply PRINCIPLES → Code
 ```
 
 **Before coding, answer:**
@@ -170,7 +166,7 @@ When user's prompt is NOT in English:
 
 ## TIER 1: CODE RULES (When Writing Code)
 
-### 📱 Project Type Routing
+### Project Type Routing
 
 | Project Type                           | Primary Agent         | Skills                        |
 | -------------------------------------- | --------------------- | ----------------------------- |
@@ -178,13 +174,13 @@ When user's prompt is NOT in English:
 | **WEB** (Next.js, React web)           | `frontend-specialist` | frontend-design               |
 | **BACKEND** (API, server, DB)          | `backend-specialist`  | api-patterns, database-design |
 
-> 🔴 **Mobile + frontend-specialist = WRONG.** Mobile = mobile-developer ONLY.
+> **Mobile + frontend-specialist = WRONG.** Mobile = mobile-developer ONLY.
 
-### 🛑 Socratic Gate
+### Socratic Gate
 
 **For complex requests, STOP and ASK first:**
 
-### 🛑 GLOBAL SOCRATIC GATE (TIER 0)
+### GLOBAL SOCRATIC GATE (TIER 0)
 
 **MANDATORY: Every user request must pass through the Socratic Gate before ANY tool use or implementation.**
 
@@ -194,18 +190,18 @@ When user's prompt is NOT in English:
 | **Code Edit / Bug Fix** | Context Check  | Confirm understanding + ask impact questions                      |
 | **Vague / Simple**      | Clarification  | Ask Purpose, Users, and Scope                                     |
 | **Full Orchestration**  | Gatekeeper     | **STOP** subagents until user confirms plan details               |
-| **Direct "Proceed"**    | Validation     | **STOP** → Even if answers are given, ask 2 "Edge Case" questions |
+| **Direct "Proceed"**    | Validation     | **STOP** Even if answers are given, ask 2 "Edge Case" questions |
 
 **Protocol:**
 
 1. **Never Assume:** If even 1% is unclear, ASK.
-2. **Handle Spec-heavy Requests:** When user gives a list (Answers 1, 2, 3...), do NOT skip the gate. Instead, ask about **Trade-offs** or **Edge Cases** (e.g., "LocalStorage confirmed, but should we handle data clearing or versioning?") before starting.
+2. **Handle Spec-heavy Requests:** When user gives a list (Answers 1, 2, 3...), do NOT skip the gate. Instead, ask about **Trade-offs** or **Edge Cases** before starting.
 3. **Wait:** Do NOT invoke subagents or write code until the user clears the Gate.
 4. **Reference:** Full protocol in `@brainstorming`.
 
-### 🏁 Final Checklist Protocol
+### Final Checklist Protocol
 
-**Trigger:** When the user says "son kontrolleri yap", "final checks", "çalıştır tüm testleri", or similar phrases.
+**Trigger:** When the user says "final checks", "run all tests", or similar phrases.
 
 | Task Stage       | Command                                            | Purpose                        |
 | ---------------- | -------------------------------------------------- | ------------------------------ |
@@ -238,9 +234,9 @@ When user's prompt is NOT in English:
 | `lighthouse_audit.py`      | performance-profiling | Before deploy       |
 | `playwright_runner.py`     | webapp-testing        | Before deploy       |
 
-> 🔴 **Agents & Skills can invoke ANY script** via `python .agent/skills/<skill>/scripts/<script>.py`
+> **Agents & Skills can invoke ANY script** via `python .agent/skills/<skill>/scripts/<script>.py`
 
-### 🎭 Gemini Mode Mapping
+### Mode Mapping
 
 | Mode     | Agent             | Behavior                                     |
 | -------- | ----------------- | -------------------------------------------- |
@@ -255,7 +251,7 @@ When user's prompt is NOT in English:
 3. SOLUTIONING → Architecture, design (NO CODE!)
 4. IMPLEMENTATION → Code + tests
 
-> 🔴 **Edit mode:** If multi-file or structural change → Offer to create `{task-slug}.md`. For single-file fixes → Proceed directly.
+> **Edit mode:** If multi-file or structural change → Offer to create `{task-slug}.md`. For single-file fixes → Proceed directly.
 
 ---
 
@@ -265,21 +261,21 @@ When user's prompt is NOT in English:
 
 | Task         | Read                            |
 | ------------ | ------------------------------- |
-| Web UI/UX    | `.agent/frontend-specialist.md` |
-| Mobile UI/UX | `.agent/mobile-developer.md`    |
+| Web UI/UX    | `.agent/agents/frontend-specialist.md` |
+| Mobile UI/UX | `.agent/agents/mobile-developer.md`    |
 
 **These agents contain:**
 
 - Purple Ban (no violet/purple colors)
 - Template Ban (no standard layouts)
-- Anti-cliché rules
+- Anti-cliche rules
 - Deep Design Thinking protocol
 
-> 🔴 **For design work:** Open and READ the agent file. Rules are there.
+> **For design work:** Open and READ the agent file. Rules are there.
 
 ---
 
-## 🎯 SKILL SYNTAX
+## SKILL SYNTAX
 
 **Standard:** `@skill-name`
 
@@ -295,7 +291,7 @@ DEPRECATED: @[skills/...] - DO NOT USE
 
 ---
 
-## 🛡️ RISK CLASSIFICATION
+## RISK CLASSIFICATION
 
 | Risk | Meaning | Requires |
 |------|---------|----------|
@@ -310,7 +306,7 @@ Skills with `risk: offensive` (pentest, exploit, attack) require explicit user a
 
 ---
 
-## 📁 QUICK REFERENCE
+## QUICK REFERENCE
 
 ### Agents (20)
 
