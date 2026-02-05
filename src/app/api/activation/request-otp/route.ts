@@ -55,10 +55,58 @@ export async function POST(request: NextRequest) {
     }
 
     if (activation.status === 'activated') {
-      return NextResponse.json(
-        { error: 'Conta ja ativada. Faca login.' },
-        { status: 400 }
-      )
+      // User already activated but may need a new login link
+      // Generate a new magic link and send it
+      const { data: linkData, error: linkError } =
+        await supabase.auth.admin.generateLink({
+          type: 'magiclink',
+          email,
+        })
+
+      if (linkError || !linkData) {
+        logger.error({ linkError }, 'Failed to generate magic link for activated user')
+        return NextResponse.json({ error: 'Erro ao gerar link' }, { status: 500 })
+      }
+
+      // Send magic link via email
+      const magicLinkUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://sempremagras.online'}/auth/callback?token_hash=${linkData.properties.hashed_token}&type=magiclink`
+
+      const emailFrom = process.env.EMAIL_FROM || 'Queima Intermitente <onboarding@resend.dev>'
+      const htmlContent = `
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f4f4; padding: 20px; }
+      .container { background: #fff; border-radius: 12px; padding: 40px; max-width: 480px; margin: 0 auto; }
+      .button { display: inline-block; background: linear-gradient(135deg, #D85C7B, #E8A87C); color: white; padding: 14px 28px; border-radius: 12px; text-decoration: none; font-weight: 600; margin: 24px 0; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 style="color: #D85C7B;">Acesse sua conta</h1>
+      <p>Clique no botão abaixo para entrar no Queima Intermitente:</p>
+      <a href="${magicLinkUrl}" class="button">Entrar no App</a>
+      <p style="font-size: 12px; color: #666;">Link válido por 1 hora. Se você não solicitou, ignore este email.</p>
+    </div>
+  </body>
+</html>`
+
+      const emailResult = await getResend().emails.send({
+        from: emailFrom,
+        to: email,
+        subject: 'Acesse sua conta - Queima Intermitente',
+        html: htmlContent,
+      })
+
+      if (emailResult.error) {
+        logger.error({ resendError: emailResult.error }, 'Failed to send magic link')
+        return NextResponse.json({ error: 'Erro ao enviar email' }, { status: 500 })
+      }
+
+      logger.info({ email: email.slice(0, 3) + '***' }, 'Magic link sent to activated user')
+      return NextResponse.json({ success: true, loginLink: true })
     }
 
     // Handle lockout recovery (A7)

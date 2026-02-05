@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Loader2 } from 'lucide-react'
 
-type Step = 'checking' | 'email' | 'otp'
+type Step = 'checking' | 'email' | 'otp' | 'magic_link_sent'
 
 export function ActivationForm() {
   const searchParams = useSearchParams()
@@ -91,7 +91,13 @@ export function ActivationForm() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Erro ao enviar código')
-      setStep('otp')
+
+      // Check if a magic link was sent instead of OTP
+      if (data.loginLink) {
+        setStep('magic_link_sent')
+      } else {
+        setStep('otp')
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro inesperado')
       setStep('email')
@@ -225,6 +231,33 @@ export function ActivationForm() {
             Usar outro email
           </button>
         </>
+      )}
+
+      {step === 'magic_link_sent' && (
+        <div className="text-center space-y-4 py-4">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+            <span className="text-3xl">✉️</span>
+          </div>
+          <h3 className="text-lg font-semibold text-foreground">
+            Link de acesso enviado!
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Sua conta já está ativada. Enviamos um link de acesso para{' '}
+            <strong>{email}</strong>
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Verifique sua caixa de entrada e spam. O link expira em 1 hora.
+          </p>
+          <button
+            onClick={() => {
+              setStep('email')
+              setError('')
+            }}
+            className="text-sm text-primary underline"
+          >
+            Usar outro email
+          </button>
+        </div>
       )}
 
       {error && (
