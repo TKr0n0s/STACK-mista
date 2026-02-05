@@ -3,11 +3,10 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl
-
-  // Handle code exchange (from email link via Supabase)
-  const code = searchParams.get('code')
   const next = searchParams.get('next') ?? '/dashboard'
 
+  // Handle code exchange (from Supabase PKCE flow)
+  const code = searchParams.get('code')
   if (code) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
@@ -20,37 +19,53 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL('/login?error=auth_failed', origin))
   }
 
-  // Handle token_hash (legacy/manual flow)
+  // Handle token_hash (from our magic link flow)
   const tokenHash = searchParams.get('token_hash')
-  const type = searchParams.get('type') as 'magiclink' | 'recovery' | 'email' | 'signup'
+  const type = searchParams.get('type')
 
-  if (tokenHash && type) {
+  if (tokenHash) {
     const supabase = await createClient()
 
-    // Try verification with provided type
+    // Try magiclink type first (most common)
     const { error: err1 } = await supabase.auth.verifyOtp({
-      type,
+      type: 'magiclink',
       token_hash: tokenHash,
     })
 
     if (!err1) {
+      console.log('Magic link verified successfully')
       return NextResponse.redirect(new URL(next, origin))
     }
 
-    // Fallback to 'email' type
+    console.error('Magiclink verification failed:', err1.message)
+
+    // Try email type as fallback
     const { error: err2 } = await supabase.auth.verifyOtp({
       type: 'email',
       token_hash: tokenHash,
     })
 
     if (!err2) {
+      console.log('Email OTP verified successfully')
       return NextResponse.redirect(new URL(next, origin))
     }
 
-    console.error('Token verification error:', err1, err2)
+    console.error('Email verification failed:', err2.message)
+
+    // Try recovery type
+    const { error: err3 } = await supabase.auth.verifyOtp({
+      type: 'recovery',
+      token_hash: tokenHash,
+    })
+
+    if (!err3) {
+      return NextResponse.redirect(new URL(next, origin))
+    }
+
+    console.error('All verification attempts failed')
     return NextResponse.redirect(new URL('/login?error=link_expired', origin))
   }
 
-  // No code or token_hash - invalid request
+  // No valid parameters
   return NextResponse.redirect(new URL('/login?error=invalid_link', origin))
 }
