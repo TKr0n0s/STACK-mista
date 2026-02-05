@@ -1,0 +1,257 @@
+{
+  "week": 4,
+  "days": [
+    {
+      "day": 1,
+      "title": "Semana Final - Consolidação",
+      "meals": {
+        "breakfast": {
+          "name": "Bowl de Açaí Proteico",
+          "desc": "Açaí sem açúcar batido com banana congelada, topped com granola low carb e whey protein. Energia + antioxidantes.",
+          "image": "banana-smoothie.jpg",
+          "kcal": 290
+        },
+        "lunch": {
+          "name": "Frango Grelhado com Quinoa",
+          "desc": "Peito de frango temperado com ervas, quinoa com legumes e molho de iogurte. Proteína completa + carboidrato complexo.",
+          "image": "quinoa-bowl.jpg",
+          "kcal": 410
+        },
+        "dinner": {
+          "name": "Salada Mediterrânea",
+          "desc": "Mix de folhas, pepino, tomate, azeitonas, queijo feta light e atum. Ômega-3 e proteína leve para a noite.",
+          "image": "tuna-grain-salad.jpg",
+          "kcal": 280
+        }
+      },
+      "hydration": {
+        "water": "2.5L",
+        "tea": "Chá de hortelã",
+        "tip": "Hortelã auxilia na digestão e traz sensação de frescor. Ótimo após as refeições."
+      },
+      "exercise": {
+        "name": "Caminhada + Fortalecimento 45min",
+        "desc": "30 minutos de caminhada seguidos de 15 minutos de exercícios de força com peso do corpo."
+      },
+      "tip": "Última semana! Seu corpo já está adaptado. Mantenha a consistência para resultados duradouros.",
+      "did_you_know": "Após 28 dias, seu metabolismo se ajustou ao novo padrão alimentar, tornando mais fácil manter o peso.",
+      "motivation": "Você chegou à semana final! A transformação já aconteceu. Agora é manter!"
+    },
+    {
+      "day": 2,
+      "title": "Variedade e Sabor",
+      "meals": {
+        "breakfast": {
+          "name": "Crepioca de Queijo e Tomate",
+          "desc": "Crepioca (tapioca + ovo) recheada com queijo cottage e tomate seco. Prática e saborosa.",
+          "image": "tapioca-cheese.jpg",
+          "kcal": 260
+        },
+        "lunch": {
+          "name": "Carne de Panela com Mandioca",
+          "desc": "Músculo desfiado com mandioca cozida e cenoura. Comfort food saudável e reconfortante.",
+          "image": "beef-puree.jpg",
+          "kcal": 420
+        },
+        "dinner": {
+          "name": "Wrap de Frango Caesar",
+          "desc": "Wrap integral com frango grelhado, alface romana e molho caesar light. Leve e saboroso.",
+          "image": "chicken-wrap.jpg",
+          "kcal": 290
+        }
+      },
+      "hydration": {
+        "water": "2.5L",
+        "tea": "Chá de boldo",
+        "tip": "Boldo é excelente para o fígado. Tome após refeições mais pesadas."
+      },
+      "exercise": {
+        "name": "Dança ou Aeróbica 40min",
+        "desc": "Escolha uma aula de dança online ou coloque músicas animadas e dance! Exercício que não parece exercício."
+      },
+      "tip": "Permita-se apreciar a comida. Comer consciente ajuda na saciedade e no prazer.",
+      "did_you_know": "Mastigar bem (20-30 vezes) pode reduzir a quantidade de comida ingerida em até 15%.",
+      "motivation": "Cada refeição é uma oportunidade de nutrir seu corpo. Escolha bem!"
+    },
+    {
+      "day": 3,
+      "title": "Equilíbrio Perfeito",
+      "meals": {
+        "breakfast": {
+          "name": "Vitamina Verde Energizante",
+          "desc": "Espinafre, banana, leite vegetal e pasta de amendoim. Ferro + potássio + proteína vegetal.",
+          "image": "banana-smoothie.jpg",
+          "kcal": 270
+        },
+        "lunch": {
+          "name": "Salmão com Aspargos",
+          "desc": "Filé de salmão grelhado com aspargos e batata doce assada. Ômega-3 + fibras + energia.",
+          "image": "baked-fish-veggies.jpg",
+          "kcal": 450
+        },
+        "dinner": {
+          "name": "Omelete Francesa com Ervas",
+          "desc": "Omelete clássica com cebolinha, salsinha e queijo gruyère light. Simples e elegante.",
+          "image": "egg-salad.jpg",
+          "kcal": 250
+        }
+      },
+      "hydration": {
+        "water": "2.5L",
+        "tea": "Chá de melissa",
+        "tip": "Melissa (erva-cidreira) acalma a ansiedade e ajuda no sono reparador."
+      },
+      "exercise": {
+        "name": "Pilates ou Yoga 35min",
+        "desc": "Foco em alongamento e fortalecimento do core. Melhora postura e reduz tensão muscular."
+      },
+      "tip": "O salmão é um dos alimentos mais anti-inflamatórios. Inclua peixes gordurosos 2x por semana.",
+      "did_you_know": "A vitamina D do salmão ajuda na absorção de cálcio e fortalece os ossos.",
+      "motivation": "Equilíbrio não é perfeição. É fazer boas escolhas na maioria das vezes."
+    },
+    {
+      "day": 4,
+      "title": "Força e Vitalidade",
+      "meals": {
+        "breakfast": {
+          "name": "Panqueca de Banana e Aveia",
+          "desc": "Panquecas feitas com banana amassada, aveia e ovo. Naturalmente doce, sem açúcar adicionado.",
+          "image": "banana-pancake.jpg",
+          "kcal": 280
+        },
+        "lunch": {
+          "name": "Picadinho de Carne com Legumes",
+          "desc": "Cubos de alcatra com abobrinha, berinjela e pimentão. Rico em ferro e proteína.",
+          "image": "rice-beans.jpg",
+          "kcal": 400
+        },
+        "dinner": {
+          "name": "Sopa de Lentilha",
+          "desc": "Sopa cremosa de lentilha com cenoura, alho-poró e gengibre. Proteína vegetal + fibras.",
+          "image": "creamy-veggie-soup.jpg",
+          "kcal": 260
+        }
+      },
+      "hydration": {
+        "water": "2.5L",
+        "tea": "Chá de gengibre com limão",
+        "tip": "Gengibre termogênico + vitamina C do limão = boost de imunidade e metabolismo."
+      },
+      "exercise": {
+        "name": "Treino HIIT Leve 25min",
+        "desc": "20 segundos de esforço, 40 segundos de descanso. Inclua: corrida parada, jumping jacks, burpees adaptados."
+      },
+      "tip": "Lentilhas são superalimentos: proteína, fibra, ferro e baixo índice glicêmico.",
+      "did_you_know": "Treinos HIIT continuam queimando calorias por até 24 horas após o exercício.",
+      "motivation": "Você é mais forte do que imagina. Cada treino prova isso!"
+    },
+    {
+      "day": 5,
+      "title": "Leveza e Bem-Estar",
+      "meals": {
+        "breakfast": {
+          "name": "Iogurte com Frutas e Castanhas",
+          "desc": "Iogurte natural com mix de frutas vermelhas, castanha do Pará e mel (1 colher). Probióticos + antioxidantes.",
+          "image": "yogurt-granola.jpg",
+          "kcal": 280
+        },
+        "lunch": {
+          "name": "Poke Bowl Caseiro",
+          "desc": "Arroz integral, salmão cru marinado (ou cozido), pepino, edamame, cenoura e molho de gengibre.",
+          "image": "quinoa-bowl.jpg",
+          "kcal": 420
+        },
+        "dinner": {
+          "name": "Creme de Brócolis com Frango",
+          "desc": "Creme de brócolis com pedaços de frango grelhado. Vitaminas + proteína em uma refeição reconfortante.",
+          "image": "creamy-veggie-soup.jpg",
+          "kcal": 270
+        }
+      },
+      "hydration": {
+        "water": "2.5L",
+        "tea": "Água saborizada com frutas",
+        "tip": "Adicione rodelas de laranja e morango na água. Hidratação gostosa e natural."
+      },
+      "exercise": {
+        "name": "Natação ou Hidroginástica 40min",
+        "desc": "Se não tiver acesso à piscina, substitua por caminhada de 45 minutos em ritmo moderado."
+      },
+      "tip": "Exercícios na água são excelentes para articulações e queimam muitas calorias.",
+      "did_you_know": "A natação pode queimar até 500 calorias por hora, trabalhando todo o corpo.",
+      "motivation": "Dia 5 da última semana! Você está arrasando!"
+    },
+    {
+      "day": 6,
+      "title": "Preparação para o Novo Ciclo",
+      "meals": {
+        "breakfast": {
+          "name": "Ovos Benedict Saudável",
+          "desc": "Ovo pochê sobre pão integral com espinafre e molho de iogurte. Versão light do clássico.",
+          "image": "avocado-toast.jpg",
+          "kcal": 300
+        },
+        "lunch": {
+          "name": "Risoto de Frango e Cogumelos",
+          "desc": "Risoto feito com arroz arbóreo, frango desfiado e mix de cogumelos. Cremoso sem creme de leite.",
+          "image": "rice-beans.jpg",
+          "kcal": 410
+        },
+        "dinner": {
+          "name": "Salada de Grãos com Atum",
+          "desc": "Grão-de-bico, quinoa, atum, tomate cereja, pepino e molho de tahine. Completa e nutritiva.",
+          "image": "tuna-grain-salad.jpg",
+          "kcal": 310
+        }
+      },
+      "hydration": {
+        "water": "2.5L",
+        "tea": "Chá de camomila",
+        "tip": "Camomila à noite prepara seu corpo para um sono reparador essencial."
+      },
+      "exercise": {
+        "name": "Alongamento Profundo 30min",
+        "desc": "Sessão completa de alongamento para todas as partes do corpo. Recuperação ativa."
+      },
+      "tip": "Amanhã completa 4 semanas! Prepare-se para celebrar sua conquista.",
+      "did_you_know": "Cogumelos são ricos em vitamina D e compostos que fortalecem o sistema imunológico.",
+      "motivation": "Penúltimo dia! Você transformou sua relação com a comida e seu corpo."
+    },
+    {
+      "day": 7,
+      "title": "PARABÉNS - 4 Semanas Completas!",
+      "meals": {
+        "breakfast": {
+          "name": "Brunch Especial de Celebração",
+          "desc": "Waffle integral com frutas, iogurte grego e fio de mel. Uma celebração merecida e saudável!",
+          "image": "banana-pancake.jpg",
+          "kcal": 350
+        },
+        "lunch": {
+          "name": "Filé Mignon com Legumes Assados",
+          "desc": "Medalhão de filé mignon com mix de legumes assados (abóbora, cenoura, beterraba). Refeição especial!",
+          "image": "light-feijoada.jpg",
+          "kcal": 450
+        },
+        "dinner": {
+          "name": "Sopa de Legumes Reconfortante",
+          "desc": "Sopa caseira com legumes variados e frango desfiado. Termine o programa com leveza.",
+          "image": "veggie-soup-fish.jpg",
+          "kcal": 250
+        }
+      },
+      "hydration": {
+        "water": "2.5L",
+        "tea": "Seu chá favorito!",
+        "tip": "Hoje escolha seu chá preferido. Você conquistou esse momento!"
+      },
+      "exercise": {
+        "name": "Atividade de Celebração 30min",
+        "desc": "Escolha algo que você ama: dança, caminhada ao ar livre, yoga. Celebre com movimento!"
+      },
+      "tip": "Tire um momento para refletir: como você se sente comparado a 4 semanas atrás?",
+      "did_you_know": "28 dias é mais que suficiente para criar novos padrões neurais. O jejum agora é natural para você!",
+      "motivation": "🎉 PARABÉNS! Você completou o Programa Queima Intermitente! Seu novo estilo de vida começa agora!"
+    }
+  ]
+}

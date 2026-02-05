@@ -1,0 +1,259 @@
+{
+  "week": "generic",
+  "title": "Manutenção do Estilo de Vida",
+  "description": "Você completou o programa de 4 semanas! Continue usando o app para manter seus resultados. Este plano de manutenção oferece variedade para você continuar sua jornada.",
+  "days": [
+    {
+      "day": 1,
+      "title": "Início de Semana Energizado",
+      "meals": {
+        "breakfast": {
+          "name": "Smoothie Proteico de Frutas",
+          "desc": "Banana, morango, iogurte natural, aveia e whey protein. Energia para começar a semana.",
+          "image": "banana-smoothie.jpg",
+          "kcal": 280
+        },
+        "lunch": {
+          "name": "Bowl de Frango Mediterrâneo",
+          "desc": "Frango grelhado, arroz integral, legumes assados, homus e azeitonas. Completo e saboroso.",
+          "image": "quinoa-bowl.jpg",
+          "kcal": 420
+        },
+        "dinner": {
+          "name": "Omelete de Vegetais",
+          "desc": "Omelete com espinafre, tomate e queijo cottage. Leve e proteica.",
+          "image": "spinach-omelette.jpg",
+          "kcal": 240
+        }
+      },
+      "hydration": {
+        "water": "2.5L",
+        "tea": "Chá verde",
+        "tip": "Continue monitorando sua hidratação. O hábito já está formado!"
+      },
+      "exercise": {
+        "name": "Exercício de Sua Escolha 30-45min",
+        "desc": "Caminhada, dança, musculação, yoga... escolha o que te faz feliz!"
+      },
+      "tip": "Manutenção é sobre consistência, não perfeição. Continue fazendo boas escolhas.",
+      "did_you_know": "Pessoas que mantêm hábitos saudáveis por 66 dias têm 90% mais chance de mantê-los para sempre.",
+      "motivation": "Você já provou que consegue. Agora é só continuar!"
+    },
+    {
+      "day": 2,
+      "title": "Dia de Proteínas",
+      "meals": {
+        "breakfast": {
+          "name": "Ovos Mexidos com Abacate",
+          "desc": "2 ovos mexidos com meio abacate e tomate. Proteína + gorduras boas.",
+          "image": "avocado-toast.jpg",
+          "kcal": 310
+        },
+        "lunch": {
+          "name": "Carne Grelhada com Salada",
+          "desc": "Filé de carne magra com salada colorida e vinagrete caseiro.",
+          "image": "beef-puree.jpg",
+          "kcal": 400
+        },
+        "dinner": {
+          "name": "Wrap de Frango Light",
+          "desc": "Wrap integral com frango desfiado, alface e iogurte temperado.",
+          "image": "chicken-wrap.jpg",
+          "kcal": 270
+        }
+      },
+      "hydration": {
+        "water": "2.5L",
+        "tea": "Chá de hibisco",
+        "tip": "Hibisco auxilia no controle da pressão e reduz retenção de líquidos."
+      },
+      "exercise": {
+        "name": "Treino de Força 30min",
+        "desc": "Agachamentos, flexões, prancha, lunges. Use peso do corpo ou halteres leves."
+      },
+      "tip": "Proteína em cada refeição mantém a massa muscular e o metabolismo acelerado.",
+      "did_you_know": "Músculos queimam mais calorias em repouso que gordura.",
+      "motivation": "Cada dia é uma nova oportunidade de cuidar de você!"
+    },
+    {
+      "day": 3,
+      "title": "Leveza e Equilíbrio",
+      "meals": {
+        "breakfast": {
+          "name": "Iogurte com Granola Caseira",
+          "desc": "Iogurte natural com granola sem açúcar e frutas vermelhas.",
+          "image": "yogurt-granola.jpg",
+          "kcal": 260
+        },
+        "lunch": {
+          "name": "Peixe Grelhado com Legumes",
+          "desc": "Filé de tilápia ou salmão com brócolis, cenoura e vagem no vapor.",
+          "image": "baked-fish-veggies.jpg",
+          "kcal": 380
+        },
+        "dinner": {
+          "name": "Sopa de Legumes Nutritiva",
+          "desc": "Sopa caseira com legumes variados e frango desfiado.",
+          "image": "veggie-soup-fish.jpg",
+          "kcal": 240
+        }
+      },
+      "hydration": {
+        "water": "2.5L",
+        "tea": "Chá de camomila",
+        "tip": "Dia mais leve para dar descanso ao sistema digestivo."
+      },
+      "exercise": {
+        "name": "Yoga ou Alongamento 30min",
+        "desc": "Recuperação ativa com foco em flexibilidade e relaxamento."
+      },
+      "tip": "Dias mais leves ajudam o corpo a se recuperar e processar nutrientes melhor.",
+      "did_you_know": "O intestino é chamado de 'segundo cérebro' - cuidar dele melhora o humor!",
+      "motivation": "Equilíbrio é a chave para resultados duradouros."
+    },
+    {
+      "day": 4,
+      "title": "Energia Renovada",
+      "meals": {
+        "breakfast": {
+          "name": "Tapioca Proteica",
+          "desc": "Tapioca recheada com ovo e queijo cottage. Energia limpa.",
+          "image": "tapioca-cheese.jpg",
+          "kcal": 270
+        },
+        "lunch": {
+          "name": "Frango ao Curry com Arroz",
+          "desc": "Peito de frango em molho de curry light com arroz integral.",
+          "image": "chicken-sweet-potato.jpg",
+          "kcal": 410
+        },
+        "dinner": {
+          "name": "Salada de Atum Completa",
+          "desc": "Atum com ovos cozidos, folhas verdes, tomate e azeitonas.",
+          "image": "tuna-grain-salad.jpg",
+          "kcal": 290
+        }
+      },
+      "hydration": {
+        "water": "2.5L",
+        "tea": "Chá de canela",
+        "tip": "Canela ajuda a controlar o açúcar no sangue e reduz vontade de doces."
+      },
+      "exercise": {
+        "name": "Caminhada Intervalada 40min",
+        "desc": "Alterne 2 minutos rápido com 1 minuto moderado."
+      },
+      "tip": "Curry contém cúrcuma, um poderoso anti-inflamatório natural.",
+      "did_you_know": "Caminhada intervalada queima 20% mais calorias que caminhada constante.",
+      "motivation": "Metade da semana! Continue firme!"
+    },
+    {
+      "day": 5,
+      "title": "Variedade Nutritiva",
+      "meals": {
+        "breakfast": {
+          "name": "Panqueca de Banana",
+          "desc": "Panquecas de banana com aveia e canela. Naturalmente doce.",
+          "image": "banana-pancake.jpg",
+          "kcal": 280
+        },
+        "lunch": {
+          "name": "Bowl de Quinoa com Legumes",
+          "desc": "Quinoa com grão-de-bico, pepino, tomate e molho de tahine.",
+          "image": "quinoa-bowl.jpg",
+          "kcal": 390
+        },
+        "dinner": {
+          "name": "Creme de Abóbora",
+          "desc": "Creme de abóbora com gengibre e frango desfiado.",
+          "image": "pumpkin-cream.jpg",
+          "kcal": 250
+        }
+      },
+      "hydration": {
+        "water": "2.5L",
+        "tea": "Chá de erva-doce",
+        "tip": "Erva-doce auxilia na digestão e tem sabor naturalmente doce."
+      },
+      "exercise": {
+        "name": "Dança ou Aeróbica 35min",
+        "desc": "Exercício divertido que trabalha todo o corpo!"
+      },
+      "tip": "Quinoa é uma proteína completa - contém todos os aminoácidos essenciais.",
+      "did_you_know": "Variar os alimentos garante que você obtenha todos os micronutrientes.",
+      "motivation": "Sexta-feira! Você está indo muito bem!"
+    },
+    {
+      "day": 6,
+      "title": "Fim de Semana Saudável",
+      "meals": {
+        "breakfast": {
+          "name": "Açaí Bowl Nutritivo",
+          "desc": "Açaí batido com banana, topped com granola e frutas.",
+          "image": "banana-smoothie.jpg",
+          "kcal": 300
+        },
+        "lunch": {
+          "name": "Churrasco Magro",
+          "desc": "Carnes magras grelhadas com salada colorida e farofa de ovos.",
+          "image": "light-feijoada.jpg",
+          "kcal": 450
+        },
+        "dinner": {
+          "name": "Salada Completa com Ovos",
+          "desc": "Mix de folhas com ovos cozidos, queijo, nozes e azeite.",
+          "image": "egg-salad.jpg",
+          "kcal": 280
+        }
+      },
+      "hydration": {
+        "water": "2.5L",
+        "tea": "Água saborizada",
+        "tip": "Fim de semana! Mantenha a hidratação mesmo nos dias de descanso."
+      },
+      "exercise": {
+        "name": "Atividade Recreativa 45min",
+        "desc": "Passeio de bicicleta, caminhada no parque, ou atividade em família."
+      },
+      "tip": "Socializar enquanto se exercita torna o hábito mais prazeroso e duradouro.",
+      "did_you_know": "Churrasco pode ser saudável! Escolha cortes magros e capriche na salada.",
+      "motivation": "Sábado de autocuidado! Você merece!"
+    },
+    {
+      "day": 7,
+      "title": "Renovação Semanal",
+      "meals": {
+        "breakfast": {
+          "name": "Brunch Especial",
+          "desc": "Ovos pochê, abacate, tomate e pão integral. Refeição reconfortante.",
+          "image": "avocado-toast.jpg",
+          "kcal": 320
+        },
+        "lunch": {
+          "name": "Strogonoff de Frango Light",
+          "desc": "Frango em molho de iogurte com champignon e arroz integral.",
+          "image": "rice-beans.jpg",
+          "kcal": 400
+        },
+        "dinner": {
+          "name": "Sopa Leve de Legumes",
+          "desc": "Sopa de legumes para encerrar a semana com leveza.",
+          "image": "creamy-veggie-soup.jpg",
+          "kcal": 220
+        }
+      },
+      "hydration": {
+        "water": "2.5L",
+        "tea": "Seu chá favorito",
+        "tip": "Domingo é dia de preparar a mente para mais uma semana de sucesso!"
+      },
+      "exercise": {
+        "name": "Meditação e Alongamento 20min",
+        "desc": "Recuperação mental e física. Prepare-se para a nova semana."
+      },
+      "tip": "Use o domingo para planejar suas refeições da semana. Organização é chave!",
+      "did_you_know": "Pessoas que planejam refeições consomem 20% menos calorias por semana.",
+      "motivation": "Mais uma semana completa! Seu novo estilo de vida já é realidade!"
+    }
+  ]
+}

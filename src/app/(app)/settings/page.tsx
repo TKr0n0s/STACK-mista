@@ -39,9 +39,34 @@ interface UserProfile {
   weight: number | null
   target_weight: number | null
   activity_level: string | null
+  protein_preference: string | null
+  dietary_restrictions: string[] | null
+  foods_to_avoid: string | null
   fasting_start_hour: number
   fasting_end_hour: number
 }
+
+const activityLevels = [
+  { value: 'sedentary', label: 'Sedentária' },
+  { value: 'light', label: 'Leve' },
+  { value: 'moderate', label: 'Moderada' },
+  { value: 'active', label: 'Ativa' },
+] as const
+
+const proteinOptions = [
+  { value: 'chicken', label: 'Frango' },
+  { value: 'fish', label: 'Peixe' },
+  { value: 'meat', label: 'Carne' },
+  { value: 'eggs', label: 'Ovos' },
+  { value: 'legumes', label: 'Leguminosas' },
+] as const
+
+const dietaryOptions = [
+  'vegetariana',
+  'sem lactose',
+  'sem glúten',
+  'vegana',
+]
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -55,6 +80,11 @@ export default function SettingsPage() {
   const [editAge, setEditAge] = useState('')
   const [editWeight, setEditWeight] = useState('')
   const [editTargetWeight, setEditTargetWeight] = useState('')
+  const [editActivityLevel, setEditActivityLevel] = useState('')
+  const [editProteinPref, setEditProteinPref] = useState('')
+  const [editDietaryRestrictions, setEditDietaryRestrictions] = useState<string[]>([])
+  const [editFoodsToAvoid, setEditFoodsToAvoid] = useState('')
+  const [regeneratingPlan, setRegeneratingPlan] = useState(false)
 
   // Fasting form state
   const [fastingStart, setFastingStart] = useState('20')
@@ -80,6 +110,10 @@ export default function SettingsPage() {
           setEditAge(data.age?.toString() || '')
           setEditWeight(data.weight?.toString() || '')
           setEditTargetWeight(data.target_weight?.toString() || '')
+          setEditActivityLevel(data.activity_level || '')
+          setEditProteinPref(data.protein_preference || '')
+          setEditDietaryRestrictions(data.dietary_restrictions || [])
+          setEditFoodsToAvoid(data.foods_to_avoid || '')
           setFastingStart(data.fasting_start_hour?.toString() || '20')
           setFastingEnd(data.fasting_end_hour?.toString() || '12')
         }
@@ -137,6 +171,12 @@ export default function SettingsPage() {
     }
   }
 
+  function toggleDietary(item: string) {
+    setEditDietaryRestrictions((prev) =>
+      prev.includes(item) ? prev.filter((d) => d !== item) : [...prev, item]
+    )
+  }
+
   async function saveProfile() {
     setSaving(true)
     try {
@@ -148,12 +188,26 @@ export default function SettingsPage() {
           age: editAge ? Number(editAge) : undefined,
           weight: editWeight ? Number(editWeight) : undefined,
           target_weight: editTargetWeight ? Number(editTargetWeight) : undefined,
+          activity_level: editActivityLevel || undefined,
+          protein_preference: editProteinPref || undefined,
+          dietary_restrictions: editDietaryRestrictions.length > 0 ? editDietaryRestrictions : undefined,
+          foods_to_avoid: editFoodsToAvoid || undefined,
         }),
       })
       if (res.ok) {
         const data = await res.json()
         setProfile((prev) => prev ? { ...prev, ...data } : prev)
         setEditProfileOpen(false)
+
+        // Regenerate AI plan with new data
+        setRegeneratingPlan(true)
+        try {
+          await fetch('/api/generate-plan', { method: 'POST' })
+        } catch {
+          // Plan regeneration is optional
+        } finally {
+          setRegeneratingPlan(false)
+        }
       } else {
         alert('Erro ao salvar. Tente novamente.')
       }
@@ -310,7 +364,7 @@ export default function SettingsPage() {
           <DialogHeader>
             <DialogTitle>Editar Perfil</DialogTitle>
             <DialogDescription>
-              Atualize seus dados pessoais.
+              Atualize seus dados. Um novo plano será gerado automaticamente.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -336,7 +390,7 @@ export default function SettingsPage() {
                 />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="edit-weight">Peso (kg)</Label>
+                <Label htmlFor="edit-weight">Peso atual (kg)</Label>
                 <Input
                   id="edit-weight"
                   type="number"
@@ -358,15 +412,97 @@ export default function SettingsPage() {
                 placeholder="65"
               />
             </div>
+
+            <div className="space-y-2">
+              <Label>Nível de atividade física</Label>
+              <div className="flex flex-wrap gap-2">
+                {activityLevels.map((level) => (
+                  <button
+                    key={level.value}
+                    type="button"
+                    onClick={() => setEditActivityLevel(level.value)}
+                    className={`rounded-full px-4 py-2 text-sm transition-colors ${
+                      editActivityLevel === level.value
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground'
+                    }`}
+                  >
+                    {level.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Restrições alimentares</Label>
+              <div className="flex flex-wrap gap-2">
+                {dietaryOptions.map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => toggleDietary(item)}
+                    className={`rounded-full px-4 py-2 text-sm transition-colors ${
+                      editDietaryRestrictions.includes(item)
+                        ? 'bg-secondary text-secondary-foreground'
+                        : 'bg-muted text-muted-foreground'
+                    }`}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="edit-foods-avoid">O que você NÃO come?</Label>
+              <Input
+                id="edit-foods-avoid"
+                type="text"
+                value={editFoodsToAvoid}
+                onChange={(e) => setEditFoodsToAvoid(e.target.value)}
+                placeholder="Ex: camarão, amendoim, pimenta"
+                maxLength={500}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Proteína preferida</Label>
+              <div className="flex flex-wrap gap-2">
+                {proteinOptions.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setEditProteinPref(opt.value)}
+                    className={`rounded-full px-4 py-2 text-sm transition-colors ${
+                      editProteinPref === opt.value
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <Button
               className="w-full rounded-xl"
               onClick={saveProfile}
-              disabled={saving}
+              disabled={saving || regeneratingPlan}
             >
               {saving ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : null}
-              Salvar
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Salvando...
+                </>
+              ) : regeneratingPlan ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Gerando novo plano...
+                </>
+              ) : (
+                'Salvar e Atualizar Plano'
+              )}
             </Button>
           </div>
         </DialogContent>

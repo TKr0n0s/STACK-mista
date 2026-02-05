@@ -123,7 +123,6 @@ export function ActivationForm() {
       const { error: verifyError } = await supabase.auth.verifyOtp({
         type: 'magiclink',
         token_hash: data.hashed_token,
-        email,
       })
       if (verifyError) throw verifyError
 

@@ -1,0 +1,257 @@
+{
+  "week": 3,
+  "days": [
+    {
+      "day": 1,
+      "title": "Intensificando os Resultados",
+      "meals": {
+        "breakfast": {
+          "name": "Omelete de Claras com Espinafre",
+          "desc": "Omelete feita com 3 claras e 1 gema, espinafre refogado e tomate. Baixa caloria, alta proteína para acelerar o metabolismo.",
+          "image": "spinach-omelette.jpg",
+          "kcal": 220
+        },
+        "lunch": {
+          "name": "Salada de Frango Grelhado",
+          "desc": "Peito de frango grelhado sobre mix de folhas, pepino, tomate e cenoura ralada. Molho de limão e azeite. Proteína magra + fibras.",
+          "image": "chicken-salad.jpg",
+          "kcal": 350
+        },
+        "dinner": {
+          "name": "Peixe ao Vapor com Legumes",
+          "desc": "Filé de tilápia ao vapor com brócolis, vagem e cenoura. Refeição leve e rica em ômega-3 para a noite.",
+          "image": "baked-fish-veggies.jpg",
+          "kcal": 280
+        }
+      },
+      "hydration": {
+        "water": "2.5L",
+        "tea": "Chá verde com gengibre",
+        "tip": "O gengibre acelera o metabolismo. Tome pela manhã para potencializar a queima."
+      },
+      "exercise": {
+        "name": "Caminhada Rápida 40min",
+        "desc": "Aumente o ritmo para uma caminhada vigorosa. Alterne 3 minutos rápido com 2 minutos moderado."
+      },
+      "tip": "Seu corpo já está adaptado ao jejum. É hora de intensificar os exercícios gradualmente.",
+      "did_you_know": "Na terceira semana, seu corpo começa a usar gordura como fonte principal de energia durante o jejum.",
+      "motivation": "Você já passou da metade! Os resultados estão aparecendo. Continue firme!"
+    },
+    {
+      "day": 2,
+      "title": "Foco na Proteína",
+      "meals": {
+        "breakfast": {
+          "name": "Iogurte Grego com Chia",
+          "desc": "Iogurte grego natural (sem açúcar) com 2 colheres de chia e morangos. Proteína + fibra para saciedade prolongada.",
+          "image": "yogurt-granola.jpg",
+          "kcal": 250
+        },
+        "lunch": {
+          "name": "Carne Magra com Legumes Assados",
+          "desc": "Patinho grelhado com abobrinha, berinjela e pimentão assados. Ferro e proteína para energia.",
+          "image": "beef-puree.jpg",
+          "kcal": 420
+        },
+        "dinner": {
+          "name": "Sopa de Frango com Legumes",
+          "desc": "Caldo de frango caseiro com peito desfiado, cenoura, chuchu e salsão. Reconfortante e nutritiva.",
+          "image": "creamy-veggie-soup.jpg",
+          "kcal": 260
+        }
+      },
+      "hydration": {
+        "water": "2.5L",
+        "tea": "Chá de hibisco",
+        "tip": "O hibisco ajuda a reduzir a retenção de líquidos. Tome gelado à tarde."
+      },
+      "exercise": {
+        "name": "Treino Funcional 30min",
+        "desc": "Exercícios em circuito: agachamento, flexão adaptada, prancha, polichinelo. 3 séries de 10 cada."
+      },
+      "tip": "Proteína em todas as refeições ajuda a preservar massa muscular enquanto você emagrece.",
+      "did_you_know": "Preservar músculos durante o emagrecimento mantém seu metabolismo acelerado.",
+      "motivation": "Cada gota de suor te aproxima do seu objetivo. Você consegue!"
+    },
+    {
+      "day": 3,
+      "title": "Dia de Desintoxicação",
+      "meals": {
+        "breakfast": {
+          "name": "Smoothie Verde Detox",
+          "desc": "Couve, pepino, maçã verde, gengibre e limão batidos. Poderoso para eliminar toxinas e desinchar.",
+          "image": "banana-smoothie.jpg",
+          "kcal": 180
+        },
+        "lunch": {
+          "name": "Bowl de Quinoa com Legumes",
+          "desc": "Quinoa com grão-de-bico, pepino, tomate, azeitona e molho de tahine com limão. Completo e desintoxicante.",
+          "image": "quinoa-bowl.jpg",
+          "kcal": 380
+        },
+        "dinner": {
+          "name": "Creme de Abóbora com Gengibre",
+          "desc": "Creme de abóbora japonesa com gengibre fresco. Leve, anti-inflamatório e saciante.",
+          "image": "pumpkin-cream.jpg",
+          "kcal": 220
+        }
+      },
+      "hydration": {
+        "water": "3L",
+        "tea": "Água com limão e pepino",
+        "tip": "Hoje beba mais água. Adicione rodelas de limão e pepino para saborizar."
+      },
+      "exercise": {
+        "name": "Yoga Restaurativo 35min",
+        "desc": "Posturas suaves focando em relaxamento e alongamento profundo. Respire lentamente em cada posição."
+      },
+      "tip": "Um dia de alimentação mais leve ajuda o corpo a se recuperar e eliminar toxinas acumuladas.",
+      "did_you_know": "O fígado trabalha mais eficientemente durante o jejum, acelerando a desintoxicação natural.",
+      "motivation": "Desintoxicar é renovar. Seu corpo agradece cada escolha saudável!"
+    },
+    {
+      "day": 4,
+      "title": "Energia Sustentada",
+      "meals": {
+        "breakfast": {
+          "name": "Ovos Mexidos com Abacate",
+          "desc": "2 ovos mexidos com meio abacate fatiado e tomate. Gorduras boas + proteína para energia duradoura.",
+          "image": "avocado-toast.jpg",
+          "kcal": 320
+        },
+        "lunch": {
+          "name": "Frango ao Curry com Couve-flor",
+          "desc": "Peito de frango em molho de curry leve com arroz de couve-flor. Saboroso e low carb.",
+          "image": "chicken-sweet-potato.jpg",
+          "kcal": 380
+        },
+        "dinner": {
+          "name": "Salada de Atum com Ovos",
+          "desc": "Atum em água com ovos cozidos, folhas verdes, tomate cereja e azeitonas. Proteína pura.",
+          "image": "tuna-grain-salad.jpg",
+          "kcal": 310
+        }
+      },
+      "hydration": {
+        "water": "2.5L",
+        "tea": "Chá de canela",
+        "tip": "A canela ajuda a estabilizar o açúcar no sangue, reduzindo vontade de doces."
+      },
+      "exercise": {
+        "name": "Caminhada Intervalada 35min",
+        "desc": "2 minutos caminhando rápido, 1 minuto moderado. Repita por 35 minutos. Queima mais calorias!"
+      },
+      "tip": "Gorduras boas como abacate e azeite dão saciedade e ajudam na absorção de vitaminas.",
+      "did_you_know": "Treino intervalado pode queimar até 30% mais calorias que exercício contínuo.",
+      "motivation": "Metade da semana 3 concluída! Seus hábitos estão se tornando naturais."
+    },
+    {
+      "day": 5,
+      "title": "Variedade Nutricional",
+      "meals": {
+        "breakfast": {
+          "name": "Tapioca com Frango Desfiado",
+          "desc": "Tapioca recheada com frango desfiado, tomate e orégano. Sem glúten, rica em proteína.",
+          "image": "tapioca-cheese.jpg",
+          "kcal": 290
+        },
+        "lunch": {
+          "name": "Peixe Grelhado com Purê de Mandioquinha",
+          "desc": "Filé de salmão grelhado com purê de mandioquinha e espinafre refogado. Ômega-3 e carboidrato complexo.",
+          "image": "baked-fish-veggies.jpg",
+          "kcal": 430
+        },
+        "dinner": {
+          "name": "Wrap de Alface com Peru",
+          "desc": "Folhas de alface americana recheadas com peito de peru, cenoura ralada e cream cheese light.",
+          "image": "chicken-wrap.jpg",
+          "kcal": 240
+        }
+      },
+      "hydration": {
+        "water": "2.5L",
+        "tea": "Chá de erva-doce",
+        "tip": "A erva-doce ajuda na digestão e tem efeito calmante natural."
+      },
+      "exercise": {
+        "name": "Dança Aeróbica 40min",
+        "desc": "Coloque músicas animadas e dance! Exercício divertido que trabalha o corpo todo."
+      },
+      "tip": "Variar os alimentos garante todos os nutrientes e evita monotonia na dieta.",
+      "did_you_know": "O salmão é um dos alimentos mais completos: proteína, ômega-3 e vitamina D.",
+      "motivation": "Dia 5 da semana 3! Você está mais saudável a cada dia que passa."
+    },
+    {
+      "day": 6,
+      "title": "Preparando para o Final",
+      "meals": {
+        "breakfast": {
+          "name": "Mingau de Aveia Proteico",
+          "desc": "Aveia cozida com leite desnatado, whey protein ou clara de ovo, canela e frutas vermelhas.",
+          "image": "yogurt-granola.jpg",
+          "kcal": 310
+        },
+        "lunch": {
+          "name": "Strogonoff de Frango Light",
+          "desc": "Frango em cubos com molho de iogurte natural, champignon e arroz integral. Versão saudável do clássico.",
+          "image": "rice-beans.jpg",
+          "kcal": 420
+        },
+        "dinner": {
+          "name": "Omelete de Legumes",
+          "desc": "Omelete com abobrinha, tomate, cebola e queijo cottage. Jantar leve e proteico.",
+          "image": "egg-salad.jpg",
+          "kcal": 270
+        }
+      },
+      "hydration": {
+        "water": "2.5L",
+        "tea": "Chá de camomila",
+        "tip": "Camomila à noite ajuda no sono reparador, essencial para o emagrecimento."
+      },
+      "exercise": {
+        "name": "Pilates 30min",
+        "desc": "Exercícios de pilates focando no core. Fortalece o abdômen e melhora a postura."
+      },
+      "tip": "O sono de qualidade é fundamental. Hormônios do emagrecimento são liberados durante o sono.",
+      "did_you_know": "Dormir menos de 7 horas pode aumentar a fome no dia seguinte em até 24%.",
+      "motivation": "Amanhã completa 3 semanas! Você é uma guerreira!"
+    },
+    {
+      "day": 7,
+      "title": "3 Semanas Completas!",
+      "meals": {
+        "breakfast": {
+          "name": "Panqueca Proteica de Banana",
+          "desc": "Panqueca de banana, aveia e ovos com frutas vermelhas. Sem farinha branca, naturalmente doce.",
+          "image": "banana-pancake.jpg",
+          "kcal": 300
+        },
+        "lunch": {
+          "name": "Churrasco Magro com Salada",
+          "desc": "Alcatra ou fraldinha grelhada com salada colorida e farofa de ovos. Celebração saudável!",
+          "image": "light-feijoada.jpg",
+          "kcal": 480
+        },
+        "dinner": {
+          "name": "Sopa Cremosa de Legumes",
+          "desc": "Creme de legumes variados (cenoura, abóbora, batata doce) com frango desfiado.",
+          "image": "veggie-soup-fish.jpg",
+          "kcal": 280
+        }
+      },
+      "hydration": {
+        "water": "2.5L",
+        "tea": "Chá de sua escolha favorita",
+        "tip": "Hoje escolha seu chá preferido. Você merece essa recompensa!"
+      },
+      "exercise": {
+        "name": "Alongamento e Meditação 30min",
+        "desc": "Alongue todo o corpo e finalize com 10 minutos de meditação. Celebre sua conquista."
+      },
+      "tip": "Reflita sobre as 3 semanas: como você se sente? O que mudou? Anote suas conquistas!",
+      "did_you_know": "21 dias é o tempo para formar um hábito. Parabéns, o jejum agora faz parte da sua rotina!",
+      "motivation": "PARABÉNS! 3 semanas completas! Você transformou sua relação com a comida. A semana 4 te espera!"
+    }
+  ]
+}

@@ -18,7 +18,21 @@ export default function DayDetailPage() {
   useEffect(() => {
     async function loadDay() {
       try {
-        const res = await fetch('/data/week1.json')
+        // Get user's current week
+        const profileRes = await fetch('/api/user/profile')
+        let weekNumber = 1
+
+        if (profileRes.ok) {
+          const profile = await profileRes.json()
+          const daysSinceSignup = Math.floor(
+            (Date.now() - new Date(profile.created_at).getTime()) / 86400000
+          )
+          weekNumber = Math.floor(daysSinceSignup / 7) + 1
+        }
+
+        // Load appropriate week data (weeks 5+ use generic plan)
+        const weekFile = weekNumber > 4 ? 'week-generic.json' : `week${weekNumber}.json`
+        const res = await fetch(`/data/${weekFile}`)
         const data: Week1Data = await res.json()
         const found = data.days.find((d) => d.day === dayNumber)
         setDay(found || null)

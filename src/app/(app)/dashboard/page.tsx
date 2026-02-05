@@ -17,22 +17,26 @@ export default function DashboardPage() {
   const [dayIndex, setDayIndex] = useState(1)
   const [userName, setUserName] = useState('')
 
+  const [currentWeek, setCurrentWeek] = useState(1)
+
   useEffect(() => {
     async function loadDashboard() {
       try {
-        // Fetch profile and week data in parallel
-        const [profileRes, weekRes] = await Promise.all([
-          fetch('/api/user/profile'),
-          fetch('/data/week1.json'),
-        ])
+        // Fetch profile first
+        const profileRes = await fetch('/api/user/profile')
 
         let programDay = 1
+        let weekNumber = 1
+
         if (profileRes.ok) {
           const profile = await profileRes.json()
           const daysSinceSignup = Math.floor(
             (Date.now() - new Date(profile.created_at).getTime()) / 86400000
           )
+          // Calculate week number (1-indexed, caps at 4 for specific plans)
+          weekNumber = Math.floor(daysSinceSignup / 7) + 1
           programDay = (daysSinceSignup % 7) + 1
+
           if (profile.name) setUserName(profile.name.split(' ')[0])
 
           if (isNotificationsEnabled()) {
@@ -44,6 +48,11 @@ export default function DashboardPage() {
         }
 
         setDayIndex(programDay)
+        setCurrentWeek(weekNumber)
+
+        // Load appropriate week data (weeks 5+ use generic plan)
+        const weekFile = weekNumber > 4 ? 'week-generic.json' : `week${weekNumber}.json`
+        const weekRes = await fetch(`/data/${weekFile}`)
 
         if (weekRes.ok) {
           const data: Week1Data = await weekRes.json()
@@ -77,7 +86,7 @@ export default function DashboardPage() {
 
         <div className="relative z-10">
           <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-            Semana 1 &middot; Dia {day.day}
+            {currentWeek > 4 ? 'Manutenção' : `Semana ${currentWeek}`} &middot; Dia {day.day}
           </p>
           <h1 className="text-2xl font-bold text-foreground">
             {userName ? `Olá, ${userName}` : 'Meu Dia'}
