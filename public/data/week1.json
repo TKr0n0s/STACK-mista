@@ -1,0 +1,257 @@
+{
+  "week": 1,
+  "days": [
+    {
+      "day": 1,
+      "title": "Seu Início no Jejum Intermitente",
+      "meals": {
+        "breakfast": {
+          "name": "Salada Proteica com Frango",
+          "desc": "Salada verde com peito de frango grelhado, tomate cereja, pepino e azeite de oliva extra virgem. Rica em proteínas e fibras para sustentar a energia após o jejum.",
+          "image": "chicken-salad.jpg",
+          "kcal": 380
+        },
+        "lunch": {
+          "name": "Chá Verde com Frutas",
+          "desc": "Chá verde gelado acompanhado de uma porção de frutas da estação: maçã, banana e morangos. Lanche leve e nutritivo para o meio da tarde.",
+          "image": "green-tea-fruit.jpg",
+          "kcal": 180
+        },
+        "dinner": {
+          "name": "Sopa de Legumes com Peixe",
+          "desc": "Sopa caseira de abóbora, cenoura e inhame com filé de peixe grelhado. Refeição leve e reconfortante para encerrar a janela alimentar.",
+          "image": "veggie-soup-fish.jpg",
+          "kcal": 320
+        }
+      },
+      "hydration": {
+        "water": "2L",
+        "tea": "Chá verde",
+        "tip": "Beber água e chá sem açúcar ajuda a manter a hidratação durante o jejum."
+      },
+      "exercise": {
+        "name": "Caminhada 30min",
+        "desc": "Caminhada leve ao ar livre ou em esteira. Mantenha um ritmo confortável onde consiga conversar."
+      },
+      "tip": "Comece devagar: não precisa fazer tudo perfeito no primeiro dia. O importante é dar o primeiro passo.",
+      "did_you_know": "Muitas mulheres relatam que o jejum intermitente ajuda a criar uma rotina alimentar mais organizada.",
+      "motivation": "Cada pequeno passo conta. Você está cuidando de você!"
+    },
+    {
+      "day": 2,
+      "title": "Fortalecendo o Hábito",
+      "meals": {
+        "breakfast": {
+          "name": "Omelete de Espinafre",
+          "desc": "Omelete com 2 ovos, espinafre fresco e queijo branco. Fonte de proteína e ferro para começar bem o dia.",
+          "image": "spinach-omelette.jpg",
+          "kcal": 310
+        },
+        "lunch": {
+          "name": "Bowl de Quinoa com Legumes",
+          "desc": "Quinoa cozida com brócolis, cenoura ralada, grão-de-bico e molho tahine. Completo em nutrientes.",
+          "image": "quinoa-bowl.jpg",
+          "kcal": 420
+        },
+        "dinner": {
+          "name": "Frango Grelhado com Batata Doce",
+          "desc": "Peito de frango temperado com ervas e batata doce assada. Combinação clássica e nutritiva.",
+          "image": "chicken-sweet-potato.jpg",
+          "kcal": 450
+        }
+      },
+      "hydration": {
+        "water": "2L",
+        "tea": "Chá de camomila",
+        "tip": "A camomila ajuda a relaxar e pode melhorar a qualidade do sono."
+      },
+      "exercise": {
+        "name": "Alongamento 20min",
+        "desc": "Sequência de alongamentos para todo o corpo. Foque em respirar profundamente durante cada posição."
+      },
+      "tip": "Se sentir fome durante o jejum, beba água ou chá. A sensação geralmente passa em 15-20 minutos.",
+      "did_you_know": "O corpo se adapta gradualmente ao jejum intermitente. Os primeiros dias costumam ser os mais desafiadores.",
+      "motivation": "Você está no segundo dia! Isso já mostra comprometimento."
+    },
+    {
+      "day": 3,
+      "title": "Encontrando Seu Ritmo",
+      "meals": {
+        "breakfast": {
+          "name": "Iogurte com Granola e Frutas",
+          "desc": "Iogurte natural com granola sem açúcar, banana fatiada e mel. Café da manhã prático e saboroso.",
+          "image": "yogurt-granola.jpg",
+          "kcal": 290
+        },
+        "lunch": {
+          "name": "Salada de Atum com Grãos",
+          "desc": "Atum em água com folhas verdes, lentilha cozida, tomate e cebola roxa. Rico em ômega-3 e proteína.",
+          "image": "tuna-grain-salad.jpg",
+          "kcal": 370
+        },
+        "dinner": {
+          "name": "Creme de Abóbora",
+          "desc": "Creme de abóbora com gengibre e uma fatia de pão integral. Reconfortante e leve para a noite.",
+          "image": "pumpkin-cream.jpg",
+          "kcal": 280
+        }
+      },
+      "hydration": {
+        "water": "2L",
+        "tea": "Chá de hibisco",
+        "tip": "O hibisco é uma opção saborosa e refrescante, quente ou gelado."
+      },
+      "exercise": {
+        "name": "Caminhada 30min",
+        "desc": "Aumente levemente o ritmo em relação ao Dia 1. Tente incluir algumas subidas se possível."
+      },
+      "tip": "Planeje suas refeições com antecedência. Ter os ingredientes prontos facilita manter a rotina.",
+      "did_you_know": "Manter horários regulares para as refeições pode ajudar o corpo a se adaptar melhor ao jejum.",
+      "motivation": "Três dias seguidos! Você está construindo um hábito poderoso."
+    },
+    {
+      "day": 4,
+      "title": "Metade da Semana",
+      "meals": {
+        "breakfast": {
+          "name": "Tapioca com Queijo e Tomate",
+          "desc": "Tapioca recheada com queijo branco e tomate fatiado. Leve, sem glúten e tipicamente brasileira.",
+          "image": "tapioca-cheese.jpg",
+          "kcal": 260
+        },
+        "lunch": {
+          "name": "Arroz Integral com Feijão e Legumes",
+          "desc": "Clássico brasileiro: arroz integral, feijão, couve refogada e cenoura. Completo e nutritivo.",
+          "image": "rice-beans.jpg",
+          "kcal": 480
+        },
+        "dinner": {
+          "name": "Salada Completa com Ovo",
+          "desc": "Mix de folhas com ovo cozido, abacate, nozes e azeite. Leve e satisfatório para a noite.",
+          "image": "egg-salad.jpg",
+          "kcal": 340
+        }
+      },
+      "hydration": {
+        "water": "2L",
+        "tea": "Chá de erva-doce",
+        "tip": "A erva-doce pode ajudar na digestão e tem sabor naturalmente adocicado."
+      },
+      "exercise": {
+        "name": "Yoga Suave 25min",
+        "desc": "Prática de yoga para iniciantes focando em posturas de equilíbrio e respiração consciente."
+      },
+      "tip": "Você já completou mais da metade da semana! Celebre cada pequena conquista.",
+      "did_you_know": "O jejum intermitente não é sobre restringir alimentos, mas sobre organizar os horários das refeições.",
+      "motivation": "Metade da semana conquistada! Você está mais forte do que imagina."
+    },
+    {
+      "day": 5,
+      "title": "Consolidando Resultados",
+      "meals": {
+        "breakfast": {
+          "name": "Vitamina de Banana com Aveia",
+          "desc": "Vitamina com banana, aveia, leite (ou bebida vegetal) e canela. Energia para começar o dia.",
+          "image": "banana-smoothie.jpg",
+          "kcal": 330
+        },
+        "lunch": {
+          "name": "Macarrão Integral com Frango",
+          "desc": "Macarrão integral ao molho de tomate caseiro com frango desfiado e manjericão fresco.",
+          "image": "pasta-chicken.jpg",
+          "kcal": 460
+        },
+        "dinner": {
+          "name": "Peixe Assado com Legumes",
+          "desc": "Filé de tilápia assado com abobrinha, berinjela e pimentão. Colorido e nutritivo.",
+          "image": "baked-fish-veggies.jpg",
+          "kcal": 310
+        }
+      },
+      "hydration": {
+        "water": "2L",
+        "tea": "Chá verde",
+        "tip": "Alterne entre chás diferentes ao longo da semana para variar o paladar."
+      },
+      "exercise": {
+        "name": "Caminhada Rápida 30min",
+        "desc": "Aumente o ritmo da caminhada. Tente manter um passo onde você consiga falar, mas com esforço."
+      },
+      "tip": "Registre como você está se sentindo. Notar as mudanças positivas motiva a continuar.",
+      "did_you_know": "A hidratação adequada é fundamental durante o jejum. Água, chás e café sem açúcar são permitidos.",
+      "motivation": "Dia 5! Você já tem uma rotina. Isso é incrível!"
+    },
+    {
+      "day": 6,
+      "title": "Quase Lá",
+      "meals": {
+        "breakfast": {
+          "name": "Pão Integral com Abacate",
+          "desc": "Pão integral torrado com pasta de abacate, sal rosa e semente de chia. Gorduras saudáveis para o cérebro.",
+          "image": "avocado-toast.jpg",
+          "kcal": 350
+        },
+        "lunch": {
+          "name": "Carne Magra com Purê",
+          "desc": "Patinho ou acém cozido com purê de batata e salada verde. Refeição completa e reconfortante.",
+          "image": "beef-puree.jpg",
+          "kcal": 490
+        },
+        "dinner": {
+          "name": "Wrap de Frango com Legumes",
+          "desc": "Wrap integral com frango desfiado, alface, tomate e iogurte natural como molho.",
+          "image": "chicken-wrap.jpg",
+          "kcal": 360
+        }
+      },
+      "hydration": {
+        "water": "2L",
+        "tea": "Chá de hortelã",
+        "tip": "Hortelã é refrescante e pode ajudar a reduzir a sensação de inchaço."
+      },
+      "exercise": {
+        "name": "Dança 20min",
+        "desc": "Coloque sua música favorita e dance! Exercício divertido que trabalha o corpo inteiro."
+      },
+      "tip": "Amanhã é o último dia da semana. Prepare algo especial para celebrar.",
+      "did_you_know": "Exercícios leves durante o jejum são seguros para a maioria das pessoas. Ouça seu corpo.",
+      "motivation": "Falta só um dia para completar sua primeira semana! Você é incrível!"
+    },
+    {
+      "day": 7,
+      "title": "Semana 1 Completa!",
+      "meals": {
+        "breakfast": {
+          "name": "Panqueca de Banana",
+          "desc": "Panqueca feita com banana, ovo e aveia. Sem açúcar adicionado, naturalmente doce. Uma recompensa saudável!",
+          "image": "banana-pancake.jpg",
+          "kcal": 280
+        },
+        "lunch": {
+          "name": "Feijoada Light",
+          "desc": "Versão mais leve da feijoada: feijão preto com lombo, couve e arroz integral. Sabor brasileiro sem peso.",
+          "image": "light-feijoada.jpg",
+          "kcal": 520
+        },
+        "dinner": {
+          "name": "Sopa de Legumes Cremosa",
+          "desc": "Sopa cremosa de brócolis com queijo parmesão ralado. Encerre a semana com conforto.",
+          "image": "creamy-veggie-soup.jpg",
+          "kcal": 250
+        }
+      },
+      "hydration": {
+        "water": "2L",
+        "tea": "Chá de sua escolha",
+        "tip": "Escolha o chá que mais gostou essa semana e aproveite."
+      },
+      "exercise": {
+        "name": "Alongamento e Relaxamento 25min",
+        "desc": "Sessão de alongamento completo seguida de 5 minutos de respiração profunda. Você merece."
+      },
+      "tip": "Reflexão: o que funcionou bem essa semana? O que você pode ajustar na próxima?",
+      "did_you_know": "Completar uma semana inteira de jejum intermitente é uma conquista real. Muitas pessoas desistem antes.",
+      "motivation": "PARABÉNS! Você completou a Semana 1! A Semana 2 está esperando por você."
+    }
+  ]
+}

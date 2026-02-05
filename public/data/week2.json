@@ -1,0 +1,257 @@
+{
+  "week": 2,
+  "days": [
+    {
+      "day": 1,
+      "title": "Começando a Segunda Semana",
+      "meals": {
+        "breakfast": {
+          "name": "Ovos Mexidos com Tomate",
+          "desc": "Ovos mexidos cremosos com tomate fresco picado, cebolinha e uma fatia de pão integral. Rico em proteínas para começar bem.",
+          "image": "spinach-omelette.jpg",
+          "kcal": 320
+        },
+        "lunch": {
+          "name": "Salada Mediterrânea",
+          "desc": "Mix de folhas verdes com pepino, tomate, azeitona, queijo feta e grão-de-bico. Temperada com azeite e limão.",
+          "image": "tuna-grain-salad.jpg",
+          "kcal": 390
+        },
+        "dinner": {
+          "name": "Frango ao Limão com Legumes",
+          "desc": "Peito de frango grelhado ao molho de limão siciliano com abobrinha e cenoura assadas.",
+          "image": "chicken-sweet-potato.jpg",
+          "kcal": 380
+        }
+      },
+      "hydration": {
+        "water": "2L",
+        "tea": "Chá de capim-limão",
+        "tip": "O capim-limão ajuda na digestão e tem aroma relaxante."
+      },
+      "exercise": {
+        "name": "Caminhada 35min",
+        "desc": "Aumente 5 minutos em relação à semana passada. Mantenha um ritmo confortável."
+      },
+      "tip": "Você já completou uma semana inteira! Use essa energia para continuar forte.",
+      "did_you_know": "Seu corpo já está mais adaptado ao jejum. Os hormônios estão se regulando.",
+      "motivation": "Semana 2! Você provou que consegue. Agora vamos consolidar!"
+    },
+    {
+      "day": 2,
+      "title": "Mantendo o Ritmo",
+      "meals": {
+        "breakfast": {
+          "name": "Mingau de Aveia com Frutas",
+          "desc": "Mingau de aveia com leite, banana fatiada, morangos e um fio de mel. Energia sustentada para o dia.",
+          "image": "yogurt-granola.jpg",
+          "kcal": 340
+        },
+        "lunch": {
+          "name": "Wrap de Atum",
+          "desc": "Wrap integral recheado com atum, alface, tomate e maionese light. Prático e nutritivo.",
+          "image": "chicken-wrap.jpg",
+          "kcal": 420
+        },
+        "dinner": {
+          "name": "Caldo Verde Light",
+          "desc": "Caldo verde tradicional com couve, batata e linguiça de frango. Reconfortante e leve.",
+          "image": "creamy-veggie-soup.jpg",
+          "kcal": 290
+        }
+      },
+      "hydration": {
+        "water": "2L",
+        "tea": "Chá de gengibre",
+        "tip": "O gengibre ajuda no metabolismo e aquece o corpo."
+      },
+      "exercise": {
+        "name": "Pilates 25min",
+        "desc": "Exercícios de pilates focando no core e postura. Fortaleça o centro do corpo."
+      },
+      "tip": "Varie os temperos das suas refeições para não enjoar do cardápio.",
+      "did_you_know": "O jejum intermitente pode ajudar a melhorar a sensibilidade à insulina.",
+      "motivation": "Cada dia que passa você fica mais forte e determinada!"
+    },
+    {
+      "day": 3,
+      "title": "Explorando Novos Sabores",
+      "meals": {
+        "breakfast": {
+          "name": "Crepioca de Queijo",
+          "desc": "Crepioca (tapioca com ovo) recheada com queijo branco e orégano. Sem glúten e muito saborosa.",
+          "image": "tapioca-cheese.jpg",
+          "kcal": 280
+        },
+        "lunch": {
+          "name": "Arroz de Couve-flor com Frango",
+          "desc": "Arroz de couve-flor salteado com frango em cubos, ervilhas e cenoura. Low carb e delicioso.",
+          "image": "rice-beans.jpg",
+          "kcal": 360
+        },
+        "dinner": {
+          "name": "Omelete Recheada",
+          "desc": "Omelete com recheio de cogumelos, espinafre e queijo. Jantar rápido e nutritivo.",
+          "image": "egg-salad.jpg",
+          "kcal": 310
+        }
+      },
+      "hydration": {
+        "water": "2L",
+        "tea": "Chá de maçã com canela",
+        "tip": "Canela ajuda a controlar os níveis de açúcar no sangue."
+      },
+      "exercise": {
+        "name": "Dança 30min",
+        "desc": "Coloque músicas animadas e dance! Exercício divertido que queima calorias."
+      },
+      "tip": "Experimente novos ingredientes dentro da sua janela alimentar.",
+      "did_you_know": "A variedade na alimentação garante todos os nutrientes necessários.",
+      "motivation": "Você está criando um estilo de vida, não apenas uma dieta!"
+    },
+    {
+      "day": 4,
+      "title": "Força e Determinação",
+      "meals": {
+        "breakfast": {
+          "name": "Smoothie Verde Energético",
+          "desc": "Smoothie de espinafre, banana, abacate e leite de amêndoas. Vitaminas e energia para começar o dia.",
+          "image": "banana-smoothie.jpg",
+          "kcal": 310
+        },
+        "lunch": {
+          "name": "Peixe Grelhado com Purê",
+          "desc": "Filé de tilápia grelhado com purê de batata doce e brócolis no vapor. Leve e nutritivo.",
+          "image": "baked-fish-veggies.jpg",
+          "kcal": 400
+        },
+        "dinner": {
+          "name": "Salada Caesar Light",
+          "desc": "Alface romana com frango grelhado, croutons integrais e molho caesar light.",
+          "image": "chicken-salad.jpg",
+          "kcal": 350
+        }
+      },
+      "hydration": {
+        "water": "2L",
+        "tea": "Chá de boldo",
+        "tip": "Boldo ajuda na digestão e no funcionamento do fígado."
+      },
+      "exercise": {
+        "name": "Caminhada Intervalada 30min",
+        "desc": "Alterne 2 minutos de caminhada rápida com 1 minuto de caminhada leve."
+      },
+      "tip": "Metade da semana 2 concluída! Continue firme.",
+      "did_you_know": "O exercício durante o jejum pode potencializar a queima de gordura.",
+      "motivation": "Você já percorreu um longo caminho. Não desista agora!"
+    },
+    {
+      "day": 5,
+      "title": "Colhendo Resultados",
+      "meals": {
+        "breakfast": {
+          "name": "Torrada com Pasta de Amendoim",
+          "desc": "Pão integral torrado com pasta de amendoim natural e banana fatiada. Energia duradoura.",
+          "image": "avocado-toast.jpg",
+          "kcal": 380
+        },
+        "lunch": {
+          "name": "Macarrão de Abobrinha",
+          "desc": "Espaguete de abobrinha com molho de tomate caseiro e almôndegas de frango.",
+          "image": "pasta-chicken.jpg",
+          "kcal": 340
+        },
+        "dinner": {
+          "name": "Sopa de Lentilha",
+          "desc": "Sopa nutritiva de lentilha com cenoura, aipo e temperos naturais. Rica em ferro e proteínas.",
+          "image": "pumpkin-cream.jpg",
+          "kcal": 280
+        }
+      },
+      "hydration": {
+        "water": "2L",
+        "tea": "Chá de erva-cidreira",
+        "tip": "Erva-cidreira ajuda a relaxar e melhora o sono."
+      },
+      "exercise": {
+        "name": "Yoga 30min",
+        "desc": "Pratique yoga com foco em respiração e flexibilidade. Conecte corpo e mente."
+      },
+      "tip": "Tire fotos do seu progresso. Ver a evolução é muito motivador!",
+      "did_you_know": "O jejum intermitente pode ajudar na clareza mental e concentração.",
+      "motivation": "Dia 5 da segunda semana! Você está voando!"
+    },
+    {
+      "day": 6,
+      "title": "Quase Lá",
+      "meals": {
+        "breakfast": {
+          "name": "Bowl de Açaí Proteico",
+          "desc": "Açaí batido com banana, granola sem açúcar, frutas frescas e whey protein. Energia pura!",
+          "image": "yogurt-granola.jpg",
+          "kcal": 420
+        },
+        "lunch": {
+          "name": "Escondidinho de Frango",
+          "desc": "Escondidinho de frango com purê de mandioquinha. Comida brasileira reconfortante.",
+          "image": "beef-puree.jpg",
+          "kcal": 450
+        },
+        "dinner": {
+          "name": "Sanduíche Natural",
+          "desc": "Sanduíche de pão integral com peito de peru, queijo branco, alface e tomate.",
+          "image": "chicken-wrap.jpg",
+          "kcal": 320
+        }
+      },
+      "hydration": {
+        "water": "2L",
+        "tea": "Chá de frutas vermelhas",
+        "tip": "Chás de frutas são saborosos e podem ser tomados gelados."
+      },
+      "exercise": {
+        "name": "Funcional 25min",
+        "desc": "Exercícios funcionais em casa: agachamentos, flexões adaptadas, prancha."
+      },
+      "tip": "Amanhã é o último dia da semana 2. Prepare uma refeição especial!",
+      "did_you_know": "Duas semanas de jejum já mostram mudanças no corpo e na disposição.",
+      "motivation": "Falta só um dia! Você está arrasando!"
+    },
+    {
+      "day": 7,
+      "title": "Duas Semanas Completas!",
+      "meals": {
+        "breakfast": {
+          "name": "Panqueca Americana Fit",
+          "desc": "Panquecas de aveia e banana com frutas vermelhas e um fio de mel. Café da manhã especial!",
+          "image": "banana-pancake.jpg",
+          "kcal": 350
+        },
+        "lunch": {
+          "name": "Churrasco Saudável",
+          "desc": "Fraldinha grelhada com farofa de ovos, vinagrete e salada verde. Domingo brasileiro!",
+          "image": "light-feijoada.jpg",
+          "kcal": 520
+        },
+        "dinner": {
+          "name": "Creme de Aspargos",
+          "desc": "Creme de aspargos suave com torradinhas integrais. Jantar leve e elegante.",
+          "image": "veggie-soup-fish.jpg",
+          "kcal": 260
+        }
+      },
+      "hydration": {
+        "water": "2L",
+        "tea": "Chá de sua preferência",
+        "tip": "Celebre com seu chá favorito da semana!"
+      },
+      "exercise": {
+        "name": "Alongamento e Meditação 30min",
+        "desc": "Alongue todo o corpo e finalize com 10 minutos de meditação guiada."
+      },
+      "tip": "Duas semanas completas! Reflita sobre como você se sente agora comparado ao início.",
+      "did_you_know": "14 dias de consistência criam a base de um novo hábito duradouro.",
+      "motivation": "PARABÉNS! 2 semanas! Você é uma guerreira! A Semana 3 te espera!"
+    }
+  ]
+}
