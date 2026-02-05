@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Send magic link via email
-      const magicLinkUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://sempremagras.online'}/auth/callback?token_hash=${linkData.properties.hashed_token}&type=magiclink`
+      const magicLinkUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://sempremagras.online'}/auth/callback?token_hash=${linkData.properties.hashed_token}&type=email`
 
       const emailFrom = process.env.EMAIL_FROM || 'Queima Intermitente <onboarding@resend.dev>'
       const htmlContent = `

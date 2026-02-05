@@ -13,10 +13,21 @@ export async function GET(request: NextRequest) {
 
   const supabase = await createClient()
 
-  const { error } = await supabase.auth.verifyOtp({
+  // Try with the provided type first, then fallback to 'email'
+  let error = null
+  const { error: err1 } = await supabase.auth.verifyOtp({
     type,
     token_hash: tokenHash,
   })
+
+  if (err1) {
+    // Try with 'email' type as fallback
+    const { error: err2 } = await supabase.auth.verifyOtp({
+      type: 'email',
+      token_hash: tokenHash,
+    })
+    error = err2
+  }
 
   if (error) {
     console.error('Magic link verification error:', error)
