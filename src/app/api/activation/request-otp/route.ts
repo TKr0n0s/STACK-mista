@@ -56,11 +56,16 @@ export async function POST(request: NextRequest) {
 
     if (activation.status === 'activated') {
       // User already activated but may need a new login link
-      // Generate a new magic link and send it
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://sempremagras.online'
+
+      // Generate a new magic link with redirect
       const { data: linkData, error: linkError } =
         await supabase.auth.admin.generateLink({
           type: 'magiclink',
           email,
+          options: {
+            redirectTo: `${appUrl}/dashboard`,
+          },
         })
 
       if (linkError || !linkData) {
@@ -68,8 +73,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Erro ao gerar link' }, { status: 500 })
       }
 
-      // Send magic link via email
-      const magicLinkUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://sempremagras.online'}/auth/callback?token_hash=${linkData.properties.hashed_token}&type=email`
+      // Use the action_link directly from Supabase
+      const actionLink = linkData.properties.action_link
 
       const emailFrom = process.env.EMAIL_FROM || 'Queima Intermitente <onboarding@resend.dev>'
       const htmlContent = `
@@ -78,17 +83,23 @@ export async function POST(request: NextRequest) {
   <head>
     <meta charset="utf-8" />
     <style>
-      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f4f4; padding: 20px; }
-      .container { background: #fff; border-radius: 12px; padding: 40px; max-width: 480px; margin: 0 auto; }
-      .button { display: inline-block; background: linear-gradient(135deg, #D85C7B, #E8A87C); color: white; padding: 14px 28px; border-radius: 12px; text-decoration: none; font-weight: 600; margin: 24px 0; }
+      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #FFF8F0; padding: 20px; margin: 0; }
+      .container { background: #fff; border-radius: 16px; padding: 40px; max-width: 480px; margin: 0 auto; }
+      .logo { text-align: center; font-size: 48px; margin-bottom: 16px; }
+      h1 { color: #D85C7B; text-align: center; margin: 0 0 24px 0; }
+      .button-container { text-align: center; margin: 32px 0; }
+      .button { display: inline-block; background: linear-gradient(135deg, #D85C7B, #E8A87C); color: white !important; padding: 16px 32px; border-radius: 12px; text-decoration: none; font-weight: 600; }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1 style="color: #D85C7B;">Acesse sua conta</h1>
-      <p>Clique no botão abaixo para entrar no Queima Intermitente:</p>
-      <a href="${magicLinkUrl}" class="button">Entrar no App</a>
-      <p style="font-size: 12px; color: #666;">Link válido por 1 hora. Se você não solicitou, ignore este email.</p>
+      <div class="logo">🔥</div>
+      <h1>Acesse sua conta</h1>
+      <p style="text-align: center; color: #3D3D3D;">Clique no botão abaixo para entrar no Queima Intermitente:</p>
+      <div class="button-container">
+        <a href="${actionLink}" class="button">Entrar no App</a>
+      </div>
+      <p style="font-size: 12px; color: #666; text-align: center;">Link válido por 1 hora. Se você não solicitou, ignore este email.</p>
     </div>
   </body>
 </html>`

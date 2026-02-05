@@ -42,11 +42,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate magic link
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://sempremagras.online'
+
+    // Generate magic link with redirect
     const { data: linkData, error: linkError } =
       await supabase.auth.admin.generateLink({
         type: 'magiclink',
         email,
+        options: {
+          redirectTo: `${appUrl}/dashboard`,
+        },
       })
 
     if (linkError || !linkData) {
@@ -54,8 +59,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Erro ao gerar link' }, { status: 500 })
     }
 
-    // Build magic link URL
-    const magicLinkUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://sempremagras.online'}/auth/callback?token_hash=${linkData.properties.hashed_token}&type=email`
+    // Use the action_link directly - it contains everything needed
+    // But replace the Supabase URL with our callback for better control
+    const actionLink = linkData.properties.action_link
 
     // Send email
     const emailFrom = process.env.EMAIL_FROM || 'Queima Intermitente <onboarding@resend.dev>'
@@ -81,7 +87,7 @@ export async function POST(request: NextRequest) {
       <h1>Acesse sua conta</h1>
       <p>Clique no botão abaixo para entrar no <strong>Queima Intermitente</strong>:</p>
       <div class="button-container">
-        <a href="${magicLinkUrl}" class="button">Entrar no App</a>
+        <a href="${actionLink}" class="button">Entrar no App</a>
       </div>
       <p style="font-size: 14px; color: #666;">Este link é válido por 1 hora. Se você não solicitou este acesso, ignore este email.</p>
       <div class="footer">
