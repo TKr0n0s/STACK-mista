@@ -7,67 +7,101 @@ import { TaskChecklist } from '@/components/task-checklist'
 import { DailyTip } from '@/components/daily-tip'
 import { DailyStreak } from '@/components/daily-streak'
 import { DailyProgressRing } from '@/components/daily-progress-ring'
+import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import type { Week1Data, Week1Day } from '@/lib/types'
 import { initializeReminders, isNotificationsEnabled } from '@/lib/notifications'
+import { getDayOfWeekLocal } from '@/lib/date-utils'
 
 export default function DashboardPage() {
   const [day, setDay] = useState<Week1Day | null>(null)
   const [loading, setLoading] = useState(true)
   const [dayIndex, setDayIndex] = useState(1)
   const [userName, setUserName] = useState('')
-
   const [currentWeek, setCurrentWeek] = useState(1)
+  const [fetchError, setFetchError] = useState(false)
+
+  const loadData = async () => {
+    setLoading(true)
+    setFetchError(false)
+    try {
+      // Fetch profile first
+      const profileRes = await fetch('/api/user/profile')
+
+      let programDay = 1
+      let weekNumber = 1
+
+      if (profileRes.ok) {
+        const profile = await profileRes.json()
+        const daysSinceSignup = Math.floor(
+          (Date.now() - new Date(profile.created_at).getTime()) / 86400000
+        )
+        // Calculate week number (1-indexed, caps at 4 for specific plans)
+        weekNumber = Math.floor(daysSinceSignup / 7) + 1
+        programDay = (daysSinceSignup % 7) + 1
+
+        if (profile.name) setUserName(profile.name.split(' ')[0])
+
+        if (isNotificationsEnabled()) {
+          initializeReminders(
+            profile.fasting_start_hour || 20,
+            profile.fasting_end_hour || 12
+          )
+        }
+      }
+
+      setDayIndex(programDay)
+      setCurrentWeek(weekNumber)
+
+      // Load appropriate week data (weeks 5+ use generic plan)
+      const weekFile = weekNumber > 4 ? 'week-generic.json' : `week${weekNumber}.json`
+      const weekRes = await fetch(`/data/${weekFile}`)
+
+      if (weekRes.ok) {
+        const data: Week1Data = await weekRes.json()
+        setDay(data.days[programDay - 1] || data.days[0])
+      } else {
+        throw new Error('Failed to load week data')
+      }
+    } catch {
+      setFetchError(true)
+      setDayIndex(getDayOfWeekLocal())
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    async function loadDashboard() {
-      try {
-        // Fetch profile first
-        const profileRes = await fetch('/api/user/profile')
-
-        let programDay = 1
-        let weekNumber = 1
-
-        if (profileRes.ok) {
-          const profile = await profileRes.json()
-          const daysSinceSignup = Math.floor(
-            (Date.now() - new Date(profile.created_at).getTime()) / 86400000
-          )
-          // Calculate week number (1-indexed, caps at 4 for specific plans)
-          weekNumber = Math.floor(daysSinceSignup / 7) + 1
-          programDay = (daysSinceSignup % 7) + 1
-
-          if (profile.name) setUserName(profile.name.split(' ')[0])
-
-          if (isNotificationsEnabled()) {
-            initializeReminders(
-              profile.fasting_start_hour || 20,
-              profile.fasting_end_hour || 12
-            )
-          }
-        }
-
-        setDayIndex(programDay)
-        setCurrentWeek(weekNumber)
-
-        // Load appropriate week data (weeks 5+ use generic plan)
-        const weekFile = weekNumber > 4 ? 'week-generic.json' : `week${weekNumber}.json`
-        const weekRes = await fetch(`/data/${weekFile}`)
-
-        if (weekRes.ok) {
-          const data: Week1Data = await weekRes.json()
-          setDay(data.days[programDay - 1] || data.days[0])
-        }
-      } catch {
-        setDayIndex(new Date().getDay() || 7)
-      } finally {
-        setLoading(false)
-      }
-    }
-    loadDashboard()
+    loadData()
   }, [])
 
-  if (loading || !day) {
+  if (loading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (fetchError) {
+    return (
+      <div className="mx-4 mt-4">
+        <div className="rounded-xl bg-destructive/10 p-4 text-center">
+          <p className="text-sm text-destructive">Erro ao carregar dados</p>
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-2"
+            onClick={loadData}
+          >
+            Tentar novamente
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  if (!day) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

@@ -10,6 +10,7 @@ import { db, type TaskCompletion } from '@/lib/db/schema'
 import { useUserId } from '@/hooks/use-user-id'
 import { enqueueSync } from '@/lib/sync/syncManager'
 import type { Week1Day } from '@/lib/types'
+import { getTodayKey } from '@/lib/date-utils'
 
 interface TaskChecklistProps {
   day: Week1Day
@@ -31,9 +32,6 @@ const mealEmojis: Record<string, string> = {
   exercise: '\uD83C\uDFCB\uFE0F',
 }
 
-function getToday() {
-  return new Date().toISOString().split('T')[0]
-}
 
 export function TaskChecklist({ day }: TaskChecklistProps) {
   const [completed, setCompleted] = useState<Record<TaskType, boolean>>({
@@ -50,7 +48,7 @@ export function TaskChecklist({ day }: TaskChecklistProps) {
   useEffect(() => {
     async function load() {
       try {
-        const today = getToday()
+        const today = getTodayKey()
         const tasks = await db.taskCompletions
           .where('[userId+date+taskType]')
           .between([userId, today, ''], [userId, today, '\uffff'])
@@ -81,7 +79,7 @@ export function TaskChecklist({ day }: TaskChecklistProps) {
     }
 
     try {
-      const today = getToday()
+      const today = getTodayKey()
       const existing = await db.taskCompletions
         .where('[userId+date+taskType]')
         .equals([userId, today, taskType])

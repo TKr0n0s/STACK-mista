@@ -7,12 +7,9 @@ import { useUserId } from '@/hooks/use-user-id'
 import { enqueueSync } from '@/lib/sync/syncManager'
 import { Celebration } from '@/components/celebration'
 import { Droplets, Plus } from 'lucide-react'
+import { getTodayKey } from '@/lib/date-utils'
 
 const WATER_TARGET = 8
-
-function getToday() {
-  return new Date().toISOString().split('T')[0]
-}
 
 const WaterDrop = memo(function WaterDrop({
   filled,
@@ -85,7 +82,7 @@ export function WaterTracker() {
       try {
         const log = await db.waterLogs
           .where('date')
-          .equals(getToday())
+          .equals(getTodayKey())
           .first()
         if (log) setWaterCups(log.cups)
       } catch {
@@ -112,7 +109,7 @@ export function WaterTracker() {
     }
 
     try {
-      const today = getToday()
+      const today = getTodayKey()
       const existing = await db.waterLogs
         .where('date')
         .equals(today)
@@ -159,7 +156,7 @@ export function WaterTracker() {
     }
 
     try {
-      const today = getToday()
+      const today = getTodayKey()
       const existing = await db.waterLogs
         .where('date')
         .equals(today)

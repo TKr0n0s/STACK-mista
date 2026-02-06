@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { db } from '@/lib/db/schema'
 import { useUserId } from '@/hooks/use-user-id'
 import { Flame, Star } from 'lucide-react'
+import { getTodayKey } from '@/lib/date-utils'
 
 export function DailyStreak() {
   const [streak, setStreak] = useState(0)
@@ -24,7 +25,7 @@ export function DailyStreak() {
           return
         }
 
-        const today = new Date().toISOString().split('T')[0]
+        const today = getTodayKey()
         let count = 0
         const checkDate = new Date()
 
