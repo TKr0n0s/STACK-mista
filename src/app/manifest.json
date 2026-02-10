@@ -1,12 +1,12 @@
 {
-  "name": "Queima Intermitente",
-  "short_name": "Queima",
-  "description": "Seu guia de jejum intermitente 16:8 para menopausa",
-  "start_url": "/dashboard",
+  "name": "Sempre Magras",
+  "short_name": "Sempre Magras",
+  "description": "Programa de emagrecimento e saúde",
+  "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#FFF8F0",
-  "theme_color": "#D85C7B",
+  "background_color": "#1A0A2E",
+  "theme_color": "#4B1478",
   "lang": "pt-BR",
   "icons": [
     {

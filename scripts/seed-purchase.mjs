@@ -36,7 +36,7 @@ async function seedPurchase() {
           full_name: 'Maria Teste'
         },
         Product: {
-          product_name: 'Queima Intermitente'
+          product_name: 'Sempre Magras'
         }
       }
     })

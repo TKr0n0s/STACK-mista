@@ -19,13 +19,13 @@ const outfit = Outfit({
 })
 
 export const metadata: Metadata = {
-  title: 'Queima Intermitente',
-  description: 'Seu guia de jejum intermitente 16:8 para menopausa',
+  title: 'Sempre Magras',
+  description: 'Programa de emagrecimento e saúde',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Queima Intermitente',
+    title: 'Sempre Magras',
   },
 }
 
@@ -33,7 +33,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
-  themeColor: '#D85C7B',
+  themeColor: '#4B1478',
 }
 
 export default function RootLayout({
@@ -42,7 +42,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning>
       <head>
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
       </head>

@@ -192,6 +192,7 @@ export default function SettingsPage() {
           protein_preference: editProteinPref || undefined,
           dietary_restrictions: editDietaryRestrictions.length > 0 ? editDietaryRestrictions : undefined,
           foods_to_avoid: editFoodsToAvoid || undefined,
+          profile_completed: true,
         }),
       })
       if (res.ok) {
@@ -355,7 +356,7 @@ export default function SettingsPage() {
       </Button>
 
       <p className="text-center text-[10px] text-muted-foreground/60">
-        Queima Intermitente v1.0
+        Sempre Magras v1.0
       </p>
 
       {/* Edit Profile Dialog */}

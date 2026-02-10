@@ -1,6 +1,6 @@
 /**
- * Email templates for Queima Intermitente
- * Uses brand colors: primary #D85C7B, secondary #2D5D4F, background #FFF8F0
+ * Email templates for Sempre Magras
+ * Uses brand colors: primary #4B1478, secondary #2D5D4F, background #FFF8F0
  */
 
 /**
@@ -14,7 +14,7 @@ export function getWelcomeEmailHtml(name: string): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bem-vinda ao Queima Intermitente</title>
+  <title>Bem-vinda ao Sempre Magras</title>
   <style>
     body {
       font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -29,7 +29,7 @@ export function getWelcomeEmailHtml(name: string): string {
       background: white;
       border-radius: 16px;
       padding: 32px;
-      box-shadow: 0 4px 20px rgba(216, 92, 123, 0.08);
+      box-shadow: 0 4px 20px rgba(75, 20, 120, 0.08);
     }
     .logo {
       text-align: center;
@@ -37,7 +37,7 @@ export function getWelcomeEmailHtml(name: string): string {
       margin-bottom: 24px;
     }
     h1 {
-      color: #D85C7B;
+      color: #4B1478;
       font-size: 24px;
       margin-bottom: 16px;
       font-weight: 700;
@@ -48,7 +48,7 @@ export function getWelcomeEmailHtml(name: string): string {
     }
     .button {
       display: inline-block;
-      background: linear-gradient(135deg, #D85C7B 0%, #E8A87C 100%);
+      background: linear-gradient(135deg, #4B1478 0%, #7B3FA0 100%);
       color: white !important;
       padding: 14px 28px;
       border-radius: 12px;
@@ -87,13 +87,13 @@ export function getWelcomeEmailHtml(name: string): string {
 </head>
 <body>
   <div class="container">
-    <div class="logo">🔥</div>
+    <div class="logo">SM</div>
     <h1>Bem-vinda, ${displayName}!</h1>
-    <p>Sua conta no <strong>Queima Intermitente</strong> foi ativada com sucesso!</p>
+    <p>Sua conta no <strong>Sempre Magras</strong> foi ativada com sucesso!</p>
     <p>Agora voce tem acesso completo ao programa de jejum intermitente 16:8 desenvolvido especialmente para mulheres na menopausa.</p>
 
     <div style="text-align: center;">
-      <a href="https://queimaintermitente.com/dashboard" class="button">Acessar Meu Painel</a>
+      <a href="https://sempremagras.online/dashboard" class="button">Acessar Meu Painel</a>
     </div>
 
     <div class="features">
@@ -108,7 +108,7 @@ export function getWelcomeEmailHtml(name: string): string {
 
     <div class="footer">
       <p>Duvidas? Responda este email ou acesse nosso suporte.</p>
-      <p>&copy; Queima Intermitente</p>
+      <p>&copy; Sempre Magras</p>
     </div>
   </div>
 </body>
@@ -140,7 +140,7 @@ export function getOtpEmailHtml(otp: string): string {
       background: white;
       border-radius: 16px;
       padding: 32px;
-      box-shadow: 0 4px 20px rgba(216, 92, 123, 0.08);
+      box-shadow: 0 4px 20px rgba(75, 20, 120, 0.08);
     }
     .logo {
       text-align: center;
@@ -148,7 +148,7 @@ export function getOtpEmailHtml(otp: string): string {
       margin-bottom: 24px;
     }
     h1 {
-      color: #D85C7B;
+      color: #4B1478;
       font-size: 24px;
       margin-bottom: 16px;
       font-weight: 700;
@@ -161,7 +161,7 @@ export function getOtpEmailHtml(otp: string): string {
     }
     .otp-code {
       background: linear-gradient(135deg, #FFF8F0 0%, #FCF0E6 100%);
-      border: 2px solid #D85C7B;
+      border: 2px solid #4B1478;
       border-radius: 12px;
       padding: 20px;
       text-align: center;
@@ -171,7 +171,7 @@ export function getOtpEmailHtml(otp: string): string {
       font-size: 36px;
       font-weight: 700;
       letter-spacing: 8px;
-      color: #D85C7B;
+      color: #4B1478;
       font-family: monospace;
     }
     .expiry {
@@ -191,9 +191,9 @@ export function getOtpEmailHtml(otp: string): string {
 </head>
 <body>
   <div class="container">
-    <div class="logo">🔥</div>
+    <div class="logo">SM</div>
     <h1>Codigo de Ativacao</h1>
-    <p>Use o codigo abaixo para ativar sua conta no <strong>Queima Intermitente</strong>:</p>
+    <p>Use o codigo abaixo para ativar sua conta no <strong>Sempre Magras</strong>:</p>
 
     <div class="otp-code">
       <span>${otp}</span>
@@ -203,7 +203,7 @@ export function getOtpEmailHtml(otp: string): string {
     <p class="expiry">Se voce nao solicitou este codigo, ignore este email.</p>
 
     <div class="footer">
-      <p>&copy; Queima Intermitente</p>
+      <p>&copy; Sempre Magras</p>
     </div>
   </div>
 </body>

@@ -9,7 +9,7 @@ const PROTECTED_ROUTES = [
   '/settings',
   '/onboarding',
 ]
-const PUBLIC_API_PREFIXES = ['/api/webhook', '/api/activation', '/api/dev']
+const PUBLIC_API_PREFIXES = ['/api/webhook', '/api/auth/email-login']
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl

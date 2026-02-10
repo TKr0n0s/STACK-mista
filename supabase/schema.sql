@@ -1,5 +1,5 @@
 -- ========================
--- Queima Intermitente - Database Schema
+-- Sempre Magras - Database Schema
 -- ========================
 
 -- Purchase Activations (server-only, RLS DENY-ALL)
@@ -39,11 +39,24 @@ CREATE TABLE users (
   current_week INT DEFAULT 1,
   profile_completed BOOLEAN DEFAULT FALSE,
   purchase_id TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  program_start_date TIMESTAMPTZ
 );
 
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "own_data" ON users FOR ALL USING (auth.uid() = id);
+
+-- Add documentation for program_start_date column
+COMMENT ON COLUMN users.program_start_date IS
+  'When the user started the program (completed onboarding). Used for day calculation. NULL means not started yet.';
+
+-- Migration: Backfill existing users with program_start_date
+-- Run this AFTER adding the column and BEFORE setting NOT NULL
+-- UPDATE users SET program_start_date = created_at WHERE profile_completed = true AND program_start_date IS NULL;
+
+-- Migration: Set NOT NULL constraint (run AFTER backfill completes)
+-- ALTER TABLE users ALTER COLUMN program_start_date SET NOT NULL;
+-- ALTER TABLE users ALTER COLUMN program_start_date SET DEFAULT NOW();
 
 -- AI Plans
 CREATE TABLE ai_plans (

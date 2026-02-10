@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
     if (!week || !day_number) {
       const { data: profile } = await supabase
         .from('users')
-        .select('current_week, created_at')
+        .select('current_week, program_start_date, created_at')
         .eq('id', user.id)
         .single()
 
@@ -95,9 +95,10 @@ export async function POST(request: NextRequest) {
         week = profile?.current_week ?? 1
       }
       if (!day_number) {
-        // Compute day number from date relative to created_at, or fallback to day of week
-        if (profile?.created_at) {
-          const created = new Date(profile.created_at)
+        // Compute day number from date relative to program_start_date, or fallback to created_at
+        const startDate = profile?.program_start_date || profile?.created_at
+        if (startDate) {
+          const created = new Date(startDate)
           const target = new Date(date)
           const daysSince = Math.floor((target.getTime() - created.getTime()) / 86400000)
           day_number = (daysSince % 7) + 1

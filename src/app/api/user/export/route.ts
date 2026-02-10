@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
 
 export async function GET() {
   const supabase = await createClient()
@@ -9,6 +10,21 @@ export async function GET() {
 
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // Verify LGPD consent before allowing export (Art. 18)
+  const { data: consent } = await supabase
+    .from('user_consents')
+    .select('id, consent_given')
+    .eq('user_id', user.id)
+    .single()
+
+  if (!consent?.consent_given) {
+    logger.warn({ userId: user.id }, 'Data export attempted without LGPD consent')
+    return NextResponse.json(
+      { error: 'Consentimento obrigatório para exportação de dados' },
+      { status: 403 }
+    )
   }
 
   // Fetch all user data in parallel
@@ -36,7 +52,7 @@ export async function GET() {
   return new NextResponse(JSON.stringify(exportData, null, 2), {
     headers: {
       'Content-Type': 'application/json',
-      'Content-Disposition': `attachment; filename="queima-intermitente-dados-${user.id}.json"`,
+      'Content-Disposition': `attachment; filename="sempre-magras-dados-${user.id}.json"`,
     },
   })
 }

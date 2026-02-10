@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
 
 const profileUpdateSchema = z.object({
   name: z.string().min(1).max(100).optional(),
@@ -46,7 +47,7 @@ export async function PUT(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
   }
 
   const body = await request.json()
@@ -54,7 +55,24 @@ export async function PUT(request: NextRequest) {
 
   if (!parsed.success) {
     return NextResponse.json(
-      { error: 'Dados invalidos', details: parsed.error.flatten() },
+      { error: 'Dados inválidos', details: parsed.error.flatten() },
+      { status: 400 }
+    )
+  }
+
+  // First, try to get existing user to preserve email
+  const { data: existingUser } = await supabase
+    .from('users')
+    .select('email')
+    .eq('id', user.id)
+    .single()
+
+  const userEmail = existingUser?.email || user.email || ''
+
+  if (!userEmail) {
+    logger.error({ userId: user.id }, 'Profile update: No email found')
+    return NextResponse.json(
+      { error: 'Email do usuário não encontrado' },
       { status: 400 }
     )
   }
@@ -65,7 +83,7 @@ export async function PUT(request: NextRequest) {
     .upsert(
       {
         id: user.id,
-        email: user.email || '',
+        email: userEmail,
         ...parsed.data,
       },
       { onConflict: 'id' }
@@ -74,7 +92,11 @@ export async function PUT(request: NextRequest) {
     .single()
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    logger.error({ userId: user.id, error }, 'Profile update error')
+    return NextResponse.json(
+      { error: error.message || 'Erro ao salvar perfil' },
+      { status: 500 }
+    )
   }
 
   return NextResponse.json(data)

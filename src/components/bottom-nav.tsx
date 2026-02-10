@@ -16,7 +16,7 @@ export function BottomNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 px-4 safe-bottom">
+    <nav aria-label="Navegação principal" className="fixed bottom-0 left-0 right-0 z-50 px-4 safe-bottom">
       <div className="floating-nav mx-auto flex max-w-[600px] items-center justify-evenly py-3 px-6">
         {tabs.map((tab) => {
           const isActive =

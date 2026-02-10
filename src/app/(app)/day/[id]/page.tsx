@@ -24,10 +24,12 @@ export default function DayDetailPage() {
 
         if (profileRes.ok) {
           const profile = await profileRes.json()
-          const daysSinceSignup = Math.floor(
-            (Date.now() - new Date(profile.created_at).getTime()) / 86400000
+          // Use program_start_date if available, fallback to created_at for migration period
+          const programStartDate = profile.program_start_date || profile.created_at
+          const daysSinceStart = Math.floor(
+            (Date.now() - new Date(programStartDate).getTime()) / 86400000
           )
-          weekNumber = Math.floor(daysSinceSignup / 7) + 1
+          weekNumber = Math.floor(daysSinceStart / 7) + 1
         }
 
         // Load appropriate week data (weeks 5+ use generic plan)

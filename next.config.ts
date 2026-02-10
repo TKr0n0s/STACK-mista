@@ -32,6 +32,20 @@ const nextConfig: NextConfig = {
             key: 'Referrer-Policy',
             value: 'strict-origin-when-cross-origin',
           },
+          {
+            key: 'Content-Security-Policy',
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:",
+              "style-src 'self' 'unsafe-inline' fonts.googleapis.com",
+              "img-src 'self' data: https:",
+              "font-src 'self' fonts.gstatic.com data:",
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+              "media-src 'self' blob:",
+              "worker-src 'self' blob:",
+              "frame-ancestors 'none'",
+            ].join('; '),
+          },
         ],
       },
     ]

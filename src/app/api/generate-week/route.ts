@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { getGeminiJsonModel } from '@/lib/gemini'
 import { validateAIOutput } from '@/lib/content/medical-claims'
@@ -67,14 +68,14 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const weekNumber = body.week_number as number
-
-  if (!weekNumber || weekNumber < 2) {
+  const parseResult = z.object({ week_number: z.number().int().min(2).max(12) }).safeParse(body)
+  if (!parseResult.success) {
     return NextResponse.json(
-      { error: 'Week number must be >= 2' },
+      { error: 'Invalid request data', details: parseResult.error.issues },
       { status: 400 }
     )
   }
+  const weekNumber = parseResult.data.week_number
 
   // Get user profile
   const { data: profile } = await supabase

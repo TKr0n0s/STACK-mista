@@ -1,8 +1,8 @@
 'use client'
 
-const WATER_REMINDER_KEY = 'queima:water-reminder'
-const FASTING_REMINDER_KEY = 'queima:fasting-reminder'
-const NOTIFICATION_PREF_KEY = 'queima:notifications-enabled'
+const WATER_REMINDER_KEY = 'sempre-magras:water-reminder'
+const FASTING_REMINDER_KEY = 'sempre-magras:fasting-reminder'
+const NOTIFICATION_PREF_KEY = 'sempre-magras:notifications-enabled'
 
 export type NotificationType = 'water' | 'fasting-start' | 'fasting-end' | 'motivation'
 

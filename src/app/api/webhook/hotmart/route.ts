@@ -22,21 +22,40 @@ export async function POST(request: NextRequest) {
 
   try {
     const payload = await request.json()
-    const email = payload?.data?.buyer?.email
+    const email = payload?.data?.buyer?.email?.toLowerCase().trim()
     const transactionId = payload?.data?.purchase?.transaction
+    const purchaseStatus = payload?.data?.purchase?.status
 
     if (!email || !transactionId) {
       return NextResponse.json({ error: 'Missing data' }, { status: 400 })
     }
 
+    // Only process approved purchases
+    if (purchaseStatus !== 'approved' && purchaseStatus !== 'APPROVED') {
+      logger.info({ status: purchaseStatus, transactionId }, 'Hotmart webhook ignored (not approved)')
+      return NextResponse.json({ success: true })
+    }
+
     const supabase = createAdminClient()
+
+    // Sanitize webhook payload to remove PII (addresses, phone, documents, full names)
+    // Keep only essential fields: transaction ID, product/purchase info, email, status
+    const sanitizedPayload = {
+      transaction: payload?.data?.purchase?.transaction,
+      product_id: payload?.data?.product?.id,
+      product_name: payload?.data?.product?.name,
+      purchase_status: payload?.data?.purchase?.status,
+      buyer_email: payload?.data?.buyer?.email,
+      source: 'hotmart',
+      webhook_received_at: new Date().toISOString(),
+    }
 
     // Idempotent insert: insert only once, don't overwrite existing records (A5)
     const { error } = await supabase.from('purchase_activations').insert({
       email,
       transaction_id: transactionId,
       status: 'pending',
-      webhook_payload: payload,
+      webhook_payload: sanitizedPayload,
     })
 
     // Handle duplicate webhook (error code 23505 = unique constraint violation)

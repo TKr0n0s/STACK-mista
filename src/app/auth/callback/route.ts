@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL(next, origin))
     }
 
-    console.error('Code exchange error:', error)
+    logger.error({ error }, 'Code exchange error')
     return NextResponse.redirect(new URL('/login?error=auth_failed', origin))
   }
 
@@ -33,11 +34,11 @@ export async function GET(request: NextRequest) {
     })
 
     if (!err1) {
-      console.log('Magic link verified successfully')
+      logger.info({ type: 'magiclink' }, 'Magic link verified successfully')
       return NextResponse.redirect(new URL(next, origin))
     }
 
-    console.error('Magiclink verification failed:', err1.message)
+    logger.error({ error: err1.message }, 'Magiclink verification failed')
 
     // Try email type as fallback
     const { error: err2 } = await supabase.auth.verifyOtp({
@@ -46,11 +47,11 @@ export async function GET(request: NextRequest) {
     })
 
     if (!err2) {
-      console.log('Email OTP verified successfully')
+      logger.info({ type: 'email' }, 'Email OTP verified successfully')
       return NextResponse.redirect(new URL(next, origin))
     }
 
-    console.error('Email verification failed:', err2.message)
+    logger.error({ error: err2.message }, 'Email verification failed')
 
     // Try recovery type
     const { error: err3 } = await supabase.auth.verifyOtp({
@@ -62,7 +63,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL(next, origin))
     }
 
-    console.error('All verification attempts failed')
+    logger.error({ attempts: ['magiclink', 'email', 'recovery'] }, 'All verification attempts failed')
     return NextResponse.redirect(new URL('/login?error=link_expired', origin))
   }
 

@@ -33,12 +33,14 @@ export default function DashboardPage() {
 
       if (profileRes.ok) {
         const profile = await profileRes.json()
-        const daysSinceSignup = Math.floor(
-          (Date.now() - new Date(profile.created_at).getTime()) / 86400000
+        // Use program_start_date if available, fallback to created_at for migration period
+        const programStartDate = profile.program_start_date || profile.created_at
+        const daysSinceStart = Math.floor(
+          (Date.now() - new Date(programStartDate).getTime()) / 86400000
         )
         // Calculate week number (1-indexed, caps at 4 for specific plans)
-        weekNumber = Math.floor(daysSinceSignup / 7) + 1
-        programDay = (daysSinceSignup % 7) + 1
+        weekNumber = Math.floor(daysSinceStart / 7) + 1
+        programDay = (daysSinceStart % 7) + 1
 
         if (profile.name) setUserName(profile.name.split(' ')[0])
 

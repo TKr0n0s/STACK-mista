@@ -50,7 +50,7 @@ class AppDatabase extends Dexie {
   userProfile!: Table<UserProfileCache>
 
   constructor() {
-    super('queima-intermitente')
+    super('sempre-magras')
     this.version(1).stores({
       fastingLogs: '++id, date, [userId+date]',
       waterLogs: '++id, date, [userId+date]',

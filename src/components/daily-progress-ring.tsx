@@ -4,13 +4,10 @@ import { useState, useEffect } from 'react'
 import { db } from '@/lib/db/schema'
 import { useUserId } from '@/hooks/use-user-id'
 import { useStore } from '@/lib/store'
+import { getTodayKey } from '@/lib/date-utils'
 import { Trophy } from 'lucide-react'
 
 const WATER_TARGET = 8
-
-function getToday() {
-  return new Date().toISOString().split('T')[0]
-}
 
 export function DailyProgressRing() {
   const [tasksDone, setTasksDone] = useState(0)
@@ -21,7 +18,7 @@ export function DailyProgressRing() {
   useEffect(() => {
     async function load() {
       try {
-        const today = getToday()
+        const today = getTodayKey()
         const tasks = await db.taskCompletions
           .where('[userId+date+taskType]')
           .between([userId, today, ''], [userId, today, '\uffff'])

@@ -3,13 +3,13 @@ import { test, expect } from '@playwright/test'
 test.describe('Onboarding flow', () => {
   test('login page shows activation button', async ({ page }) => {
     await page.goto('/login')
-    await expect(page.getByText('Queima Intermitente')).toBeVisible()
+    await expect(page.getByText('Sempre Magras')).toBeVisible()
     await expect(page.getByRole('link', { name: 'Ativar Minha Conta' })).toBeVisible()
   })
 
   test('activation page shows email input', async ({ page }) => {
     await page.goto('/ativar')
-    await expect(page.getByText('Bem-vinda ao Queima Intermitente')).toBeVisible()
+    await expect(page.getByText('Bem-vinda ao Sempre Magras')).toBeVisible()
     await expect(page.getByLabel('Email da compra')).toBeVisible()
   })
 
@@ -32,6 +32,6 @@ test.describe('Protected routes redirect', () => {
     await page.goto('/dashboard')
     // Should redirect to login
     await page.waitForURL(/\/login/)
-    await expect(page.getByText('Queima Intermitente')).toBeVisible()
+    await expect(page.getByText('Sempre Magras')).toBeVisible()
   })
 })

@@ -41,12 +41,13 @@ const serwist = new Serwist({
       }),
     },
     {
-      matcher: ({ url }: { url: URL }) => APP_PAGES.includes(url.pathname),
-      handler: new StaleWhileRevalidate({ cacheName: 'app-pages' }),
-    },
-    {
-      matcher: ({ url }: { url: URL }) => /^\/day\/\d+$/.test(url.pathname),
-      handler: new StaleWhileRevalidate({ cacheName: 'app-pages' }),
+      // Páginas autenticadas (app + /day/:id): NetworkFirst para garantir verificação de auth
+      matcher: ({ url }: { url: URL }) =>
+        APP_PAGES.includes(url.pathname) || /^\/day\/\d+$/.test(url.pathname),
+      handler: new NetworkFirst({
+        cacheName: 'app-pages',
+        plugins: [new ExpirationPlugin({ maxAgeSeconds: 60 * 5 })], // 5 min
+      }),
     },
     {
       matcher: ({ url }: { url: URL }) => url.pathname.startsWith('/api/generate'),
@@ -79,6 +80,19 @@ const serwist = new Serwist({
       },
     ],
   },
+})
+
+// Limpar caches antigos na ativação do SW (instalação/atualização do PWA)
+self.addEventListener('activate', (event: ExtendableEvent) => {
+  event.waitUntil(
+    caches.keys().then((names) => {
+      // Limpar caches de páginas autenticadas para forçar verificação
+      const toDelete = names.filter(
+        (n) => n.includes('app-pages') || n.includes('user-data')
+      )
+      return Promise.all(toDelete.map((n) => caches.delete(n)))
+    })
+  )
 })
 
 self.addEventListener('message', (event: ExtendableMessageEvent) => {

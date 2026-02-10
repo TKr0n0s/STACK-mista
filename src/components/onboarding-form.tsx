@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -54,6 +54,60 @@ export function OnboardingForm() {
   const [fastingEnd, setFastingEnd] = useState(12)
   const [consent, setConsent] = useState(false)
 
+  // Load saved progress on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('onboarding-progress')
+      if (saved) {
+        const data = JSON.parse(saved)
+        if (data.step) setStep(data.step)
+        if (data.name) setName(data.name)
+        if (data.age) setAge(data.age)
+        if (data.weight) setWeight(data.weight)
+        if (data.targetWeight) setTargetWeight(data.targetWeight)
+        if (data.activityLevel) setActivityLevel(data.activityLevel)
+        if (data.dietaryRestrictions && Array.isArray(data.dietaryRestrictions)) {
+          setDietaryRestrictions(data.dietaryRestrictions)
+        }
+        if (data.foodsToAvoid) setFoodsToAvoid(data.foodsToAvoid)
+        if (data.proteinPreference) setProteinPreference(data.proteinPreference)
+        if (typeof data.fastingStart === 'number') setFastingStart(data.fastingStart)
+        if (typeof data.fastingEnd === 'number') setFastingEnd(data.fastingEnd)
+        if (data.consent) setConsent(data.consent)
+      }
+    } catch {}
+  }, [])
+
+  // Save progress to localStorage
+  function saveProgress(currentStep: number) {
+    try {
+      localStorage.setItem(
+        'onboarding-progress',
+        JSON.stringify({
+          step: currentStep,
+          name,
+          age,
+          weight,
+          targetWeight,
+          activityLevel,
+          dietaryRestrictions,
+          foodsToAvoid,
+          proteinPreference,
+          fastingStart,
+          fastingEnd,
+          consent,
+        })
+      )
+    } catch {}
+  }
+
+  // Clear saved progress from localStorage
+  function clearProgress() {
+    try {
+      localStorage.removeItem('onboarding-progress')
+    } catch {}
+  }
+
   const fastingHours = fastingStart > fastingEnd
     ? 24 - fastingStart + fastingEnd
     : fastingEnd - fastingStart
@@ -75,11 +129,19 @@ export function OnboardingForm() {
   }
 
   function nextStep() {
-    if (step < TOTAL_STEPS) setStep(step + 1)
+    if (step < TOTAL_STEPS) {
+      const newStep = step + 1
+      setStep(newStep)
+      saveProgress(newStep)
+    }
   }
 
   function prevStep() {
-    if (step > 1) setStep(step - 1)
+    if (step > 1) {
+      const newStep = step - 1
+      setStep(newStep)
+      saveProgress(newStep)
+    }
   }
 
   function toggleRestriction(value: string) {
@@ -118,6 +180,7 @@ export function OnboardingForm() {
           fasting_start_hour: fastingStart,
           fasting_end_hour: fastingEnd,
           profile_completed: true,
+          program_start_date: new Date().toISOString(), // Set program start date
         }),
       })
 
@@ -139,6 +202,14 @@ export function OnboardingForm() {
           body: JSON.stringify({ consent_type: 'health_data', granted: true }),
         }),
       ])
+
+      // Generate personalized AI plan in background (don't wait)
+      fetch('/api/generate-plan', { method: 'POST' }).catch(() => {
+        // Plan generation is optional, don't block onboarding
+      })
+
+      // Clear saved progress after successful submission
+      clearProgress()
 
       router.push('/dashboard')
     } catch (err) {
@@ -410,6 +481,7 @@ export function OnboardingForm() {
                     max={23}
                     value={fastingStart}
                     onChange={(e) => setFastingStart(Number(e.target.value))}
+                    aria-label="Hora de início do jejum"
                     className="w-full accent-primary"
                   />
                 </div>
@@ -425,6 +497,7 @@ export function OnboardingForm() {
                     max={23}
                     value={fastingEnd}
                     onChange={(e) => setFastingEnd(Number(e.target.value))}
+                    aria-label="Hora de fim do jejum"
                     className="w-full accent-secondary"
                   />
                 </div>
