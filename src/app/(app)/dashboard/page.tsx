@@ -11,7 +11,8 @@ import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import type { Week1Data, Week1Day } from '@/lib/types'
 import { initializeReminders, isNotificationsEnabled } from '@/lib/notifications'
-import { sanitizeDayForFoodSafety } from '@/lib/content/day-safety'
+import { sanitizeDayWithProfile } from '@/lib/content/day-safety'
+import type { UserFoodProfile } from '@/lib/content/medical-claims'
 import { getFastingRatio } from '@/lib/fasting-utils'
 import { getMealImage } from '@/lib/meal-images'
 import type { AIPlanJSON } from '@/lib/ai-plan-schema'
@@ -34,11 +35,15 @@ export default function DashboardPage() {
 
       let programDay = 1
       let weekNumber = 1
-      let foodsToAvoidRaw: string | null = null
+      let userFoodProfile: UserFoodProfile = {}
 
       if (profileRes.ok) {
         const profile = await profileRes.json()
-        foodsToAvoidRaw = profile.foods_to_avoid || null
+        userFoodProfile = {
+          foods_to_avoid: profile.foods_to_avoid || null,
+          dietary_restrictions: profile.dietary_restrictions || null,
+          protein_preference: profile.protein_preference || null,
+        }
         // Use program_start_date if available, fallback to created_at for migration period
         const programStartDate = profile.program_start_date || profile.created_at
         const daysSinceStart = Math.floor(
@@ -83,10 +88,10 @@ export default function DashboardPage() {
                 hydration: aiDay.hydration,
                 exercise: aiDay.exercise,
                 tip: aiDay.tip,
-                did_you_know: aiDay.motivation,
+                did_you_know: aiDay.tip,
                 motivation: aiDay.motivation,
               }
-              setDay(mappedDay)
+              setDay(sanitizeDayWithProfile(mappedDay, userFoodProfile))
               usedAIPlan = true
 
               // If plan is stale (from previous week), trigger regeneration in background
@@ -108,7 +113,7 @@ export default function DashboardPage() {
         if (weekRes.ok) {
           const data: Week1Data = await weekRes.json()
           const selectedDay = data.days[programDay - 1] || data.days[0]
-          setDay(sanitizeDayForFoodSafety(selectedDay, foodsToAvoidRaw))
+          setDay(sanitizeDayWithProfile(selectedDay, userFoodProfile))
         } else {
           throw new Error('Failed to load week data')
         }

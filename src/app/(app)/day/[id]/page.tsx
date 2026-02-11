@@ -6,7 +6,10 @@ import { Button } from '@/components/ui/button'
 import { MealImage } from '@/components/meal-image'
 import { ArrowLeft, Droplets, Dumbbell, Flame, Lightbulb, ChevronDown } from 'lucide-react'
 import type { Week1Data, Week1Day } from '@/lib/types'
-import { sanitizeDayForFoodSafety } from '@/lib/content/day-safety'
+import { sanitizeDayWithProfile } from '@/lib/content/day-safety'
+import type { UserFoodProfile } from '@/lib/content/medical-claims'
+import { getMealImage } from '@/lib/meal-images'
+import type { AIPlanJSON } from '@/lib/ai-plan-schema'
 
 export default function DayDetailPage() {
   const params = useParams()
@@ -19,15 +22,18 @@ export default function DayDetailPage() {
   useEffect(() => {
     async function loadDay() {
       try {
-        // Get user's current week
+        // Get user's current week and food profile
         const profileRes = await fetch('/api/user/profile')
         let weekNumber = 1
-        let foodsToAvoidRaw: string | null = null
+        let userFoodProfile: UserFoodProfile = {}
 
         if (profileRes.ok) {
           const profile = await profileRes.json()
-          foodsToAvoidRaw = profile.foods_to_avoid || null
-          // Use program_start_date if available, fallback to created_at for migration period
+          userFoodProfile = {
+            foods_to_avoid: profile.foods_to_avoid || null,
+            dietary_restrictions: profile.dietary_restrictions || null,
+            protein_preference: profile.protein_preference || null,
+          }
           const programStartDate = profile.program_start_date || profile.created_at
           const daysSinceStart = Math.floor(
             (Date.now() - new Date(programStartDate).getTime()) / 86400000
@@ -35,12 +41,47 @@ export default function DayDetailPage() {
           weekNumber = Math.floor(daysSinceStart / 7) + 1
         }
 
-        // Load appropriate week data (weeks 5+ use generic plan)
-        const weekFile = weekNumber > 4 ? 'week-generic.json' : `week${weekNumber}.json`
-        const res = await fetch(`/data/${weekFile}`)
-        const data: Week1Data = await res.json()
-        const found = data.days.find((d) => d.day === dayNumber)
-        setDay(found ? sanitizeDayForFoodSafety(found, foodsToAvoidRaw) : null)
+        // Try AI plan first
+        let usedAIPlan = false
+        try {
+          const planRes = await fetch('/api/generate-plan')
+          if (planRes.ok) {
+            const planData = await planRes.json()
+            if (planData.plan_content) {
+              const aiPlan: AIPlanJSON = JSON.parse(planData.plan_content)
+              const aiDay = aiPlan.days?.find(d => d.day === dayNumber)
+              if (aiDay) {
+                const mappedDay: Week1Day = {
+                  day: dayNumber,
+                  title: aiDay.title,
+                  meals: {
+                    breakfast: { name: aiDay.meals.breakfast.name, desc: aiDay.meals.breakfast.desc, image: getMealImage(aiDay.meals.breakfast.name, 'breakfast'), kcal: aiDay.meals.breakfast.kcal },
+                    lunch: { name: aiDay.meals.lunch.name, desc: aiDay.meals.lunch.desc, image: getMealImage(aiDay.meals.lunch.name, 'lunch'), kcal: aiDay.meals.lunch.kcal },
+                    dinner: { name: aiDay.meals.dinner.name, desc: aiDay.meals.dinner.desc, image: getMealImage(aiDay.meals.dinner.name, 'dinner'), kcal: aiDay.meals.dinner.kcal },
+                  },
+                  hydration: aiDay.hydration,
+                  exercise: aiDay.exercise,
+                  tip: aiDay.tip,
+                  did_you_know: aiDay.tip,
+                  motivation: aiDay.motivation,
+                }
+                setDay(sanitizeDayWithProfile(mappedDay, userFoodProfile))
+                usedAIPlan = true
+              }
+            }
+          }
+        } catch {
+          // AI plan not available — fall through to static
+        }
+
+        // Fallback: load static week data
+        if (!usedAIPlan) {
+          const weekFile = weekNumber > 4 ? 'week-generic.json' : `week${weekNumber}.json`
+          const res = await fetch(`/data/${weekFile}`)
+          const data: Week1Data = await res.json()
+          const found = data.days.find((d) => d.day === dayNumber)
+          setDay(found ? sanitizeDayWithProfile(found, userFoodProfile) : null)
+        }
       } catch {
         // offline fallback
       } finally {

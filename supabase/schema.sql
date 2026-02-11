@@ -36,6 +36,7 @@ CREATE TABLE users (
   protein_preference TEXT CHECK (protein_preference IN ('chicken','fish','meat','eggs','legumes')),
   fasting_start_hour INT DEFAULT 20 CHECK (fasting_start_hour >= 0 AND fasting_start_hour < 24),
   fasting_end_hour INT DEFAULT 12 CHECK (fasting_end_hour >= 0 AND fasting_end_hour < 24),
+  CONSTRAINT fasting_hours_different CHECK (fasting_start_hour <> fasting_end_hour),
   current_week INT DEFAULT 1,
   profile_completed BOOLEAN DEFAULT FALSE,
   purchase_id TEXT,
@@ -61,7 +62,7 @@ COMMENT ON COLUMN users.program_start_date IS
 -- AI Plans
 CREATE TABLE ai_plans (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE UNIQUE,
   plan_content TEXT NOT NULL,
   regenerations_today INT DEFAULT 0,
   last_regenerated_at TIMESTAMPTZ,

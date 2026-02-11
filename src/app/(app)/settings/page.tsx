@@ -63,11 +63,26 @@ const proteinOptions = [
 ] as const
 
 const dietaryOptions = [
-  'vegetariana',
-  'sem lactose',
-  'sem glúten',
-  'vegana',
-]
+  { value: 'vegetarian', label: 'Vegetariana' },
+  { value: 'vegan', label: 'Vegana' },
+  { value: 'lactose_free', label: 'Sem Lactose' },
+  { value: 'gluten_free', label: 'Sem Glúten' },
+  { value: 'low_carb', label: 'Low Carb' },
+] as const
+
+const PT_TO_EN_DIETARY: Record<string, string> = {
+  'vegetariana': 'vegetarian',
+  'vegana': 'vegan',
+  'sem lactose': 'lactose_free',
+  'sem gluten': 'gluten_free',
+}
+
+function normalizeDietaryRestrictions(restrictions: string[]): string[] {
+  return restrictions.map(r => {
+    const normalized = r.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    return PT_TO_EN_DIETARY[normalized] || r
+  })
+}
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -117,7 +132,7 @@ export default function SettingsPage() {
           setEditTargetWeight(data.target_weight?.toString() || '')
           setEditActivityLevel(data.activity_level || '')
           setEditProteinPref(data.protein_preference || '')
-          setEditDietaryRestrictions(data.dietary_restrictions || [])
+          setEditDietaryRestrictions(normalizeDietaryRestrictions(data.dietary_restrictions || []))
           setEditFoodsToAvoid(data.foods_to_avoid || '')
           setFastingStart(data.fasting_start_hour?.toString() || '20')
           setFastingEnd(data.fasting_end_hour?.toString() || '12')
@@ -479,18 +494,18 @@ export default function SettingsPage() {
             <div className="space-y-2">
               <Label>Restrições alimentares</Label>
               <div className="flex flex-wrap gap-2">
-                {dietaryOptions.map((item) => (
+                {dietaryOptions.map((opt) => (
                   <button
-                    key={item}
+                    key={opt.value}
                     type="button"
-                    onClick={() => toggleDietary(item)}
+                    onClick={() => toggleDietary(opt.value)}
                     className={`rounded-full px-4 py-2 text-sm transition-colors ${
-                      editDietaryRestrictions.includes(item)
+                      editDietaryRestrictions.includes(opt.value)
                         ? 'bg-secondary text-secondary-foreground'
                         : 'bg-muted text-muted-foreground'
                     }`}
                   >
-                    {item}
+                    {opt.label}
                   </button>
                 ))}
               </div>

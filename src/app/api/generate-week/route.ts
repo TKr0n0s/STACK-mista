@@ -4,8 +4,11 @@ import { createClient } from '@/lib/supabase/server'
 import { getGeminiJsonModel } from '@/lib/gemini'
 import {
   getExpandedFoodsToAvoid,
+  getExcludedProteinTerms,
   parseFoodsToAvoid,
   validateAIOutput,
+  buildAllForbiddenTerms,
+  hasProteinDietConflict,
 } from '@/lib/content/medical-claims'
 import { sanitizePromptInput } from '@/lib/content/sanitize-prompt'
 import { aiRateLimiter } from '@/lib/rate-limit'
@@ -106,6 +109,28 @@ export async function POST(request: Request) {
   const expandedFoodsToAvoid = getExpandedFoodsToAvoid(parsedFoodsToAvoid)
   const foodsToAvoidPrompt = expandedFoodsToAvoid.join(', ')
 
+  // Build protein exclusion list
+  const excludedProteinTerms = getExcludedProteinTerms(profile.protein_preference)
+  const excludedProteinsPrompt = excludedProteinTerms.join(', ')
+
+  // Canonical merged validation list
+  const allFoodsToValidate = buildAllForbiddenTerms({
+    foods_to_avoid: profile.foods_to_avoid,
+    dietary_restrictions: profile.dietary_restrictions,
+    protein_preference: profile.protein_preference,
+  })
+
+  // Detect conflict: dietary restriction blocks the preferred protein
+  const conflict = hasProteinDietConflict(profile.dietary_restrictions, profile.protein_preference)
+
+  const proteinPromptSection = conflict
+    ? `- Use SOMENTE proteinas compativeis com as restricoes acima (${sanitizedRestrictions}).`
+    : `- Proteina UNICA permitida: ${profile.protein_preference || 'qualquer'}. TODAS as refeicoes devem usar SOMENTE esta proteina.${excludedProteinsPrompt ? `\n- PROTEINAS PROIBIDAS (nao usar em hipotese alguma): ${excludedProteinsPrompt}` : ''}`
+
+  const proteinRuleSection = conflict
+    ? `- PROTEINA: Use SOMENTE proteinas compativeis com as restricoes dieteticas. NAO use proteinas de origem animal se a restricao proibir.`
+    : `- PROTEINA: Use SOMENTE ${profile.protein_preference || 'a proteina escolhida'} como fonte proteica. NUNCA use ${excludedProteinsPrompt || 'outras proteinas'}`
+
   const prompt = `Voce e uma nutricionista especializada em jejum intermitente para mulheres na menopausa.
 Crie 7 dias de refeicoes para ${sanitizedName}, Semana ${weekNumber}.
 
@@ -116,11 +141,12 @@ Perfil:
 - Restricoes: ${sanitizedRestrictions || 'nenhuma'}
 - NAO come: ${sanitizedFoodsToAvoid || 'nada especificado'}
 - ITENS PROIBIDOS (alergia/intolerancia): ${foodsToAvoidPrompt || 'nenhum informado'}
-- Proteina preferida: ${profile.protein_preference || 'variada'}
+${proteinPromptSection}
 
 REGRAS OBRIGATORIAS:
 - Trate "ITENS PROIBIDOS" como alergia grave. NUNCA cite, sugira ou inclua esses alimentos
 - NUNCA sugira alimentos de "NAO come"
+${proteinRuleSection}
 - Use APENAS ingredientes comuns no Brasil
 - Use o nome ${sanitizedName} nas motivacoes
 - Tom acolhedor. Portugues brasileiro.
@@ -139,9 +165,9 @@ Para cada dia gere: title, 3 refeicoes (name + desc), hidratacao (water_target, 
       const text = result.response.text()
       const parsed = JSON.parse(text)
 
-      // Validate content safety
+      // Validate content safety (canonical merged list)
       const fullContent = JSON.stringify(parsed)
-      const validation = validateAIOutput(fullContent, expandedFoodsToAvoid)
+      const validation = validateAIOutput(fullContent, allFoodsToValidate)
 
       if (!validation.valid) {
         lastError = new Error(`Content validation failed: ${validation.issues.join(', ')}`)

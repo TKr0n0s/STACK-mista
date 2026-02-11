@@ -12,6 +12,8 @@ import { ProfilingModal } from '@/components/profiling-modal'
 import { getFastingRatio } from '@/lib/fasting-utils'
 import { getMealImage } from '@/lib/meal-images'
 import type { AIPlanJSON, AIPlanDay } from '@/lib/ai-plan-schema'
+import { buildAllForbiddenTerms, containsProhibitedFood, type UserFoodProfile } from '@/lib/content/medical-claims'
+import { SAFE_MEAL_FALLBACKS } from '@/lib/content/day-safety'
 
 interface PlanData {
   plan_content: string
@@ -24,6 +26,26 @@ function tryParseAIPlan(content: string): AIPlanJSON | null {
     if (parsed?.days?.length === 7 && parsed.summary) return parsed as AIPlanJSON
   } catch { /* markdown fallback */ }
   return null
+}
+
+function sanitizeAIPlanDay(day: AIPlanDay, forbidden: string[]): AIPlanDay {
+  if (forbidden.length === 0) return day
+  const check = (text: string) => containsProhibitedFood(text, forbidden)
+  const safeMeal = (meal: { name: string; desc: string; kcal: number }, type: 'breakfast' | 'lunch' | 'dinner') => {
+    if (check(`${meal.name} ${meal.desc}`)) {
+      const fb = SAFE_MEAL_FALLBACKS[type]
+      return { name: fb.name, desc: fb.desc, kcal: meal.kcal }
+    }
+    return meal
+  }
+  return {
+    ...day,
+    meals: {
+      breakfast: safeMeal(day.meals.breakfast, 'breakfast'),
+      lunch: safeMeal(day.meals.lunch, 'lunch'),
+      dinner: safeMeal(day.meals.dinner, 'dinner'),
+    },
+  }
 }
 
 // ─── Structured JSON day card ───────────────────────────────────────
@@ -184,6 +206,7 @@ export default function PlanPage() {
   const [fastingStartHour, setFastingStartHour] = useState(20)
   const [fastingEndHour, setFastingEndHour] = useState(12)
   const [selectedDay, setSelectedDay] = useState(0)
+  const [forbiddenTerms, setForbiddenTerms] = useState<string[]>([])
 
   useEffect(() => {
     loadProfile()
@@ -197,6 +220,11 @@ export default function PlanPage() {
         setProfileCompleted(data.profile_completed || false)
         setFastingStartHour(data.fasting_start_hour ?? 20)
         setFastingEndHour(data.fasting_end_hour ?? 12)
+        setForbiddenTerms(buildAllForbiddenTerms({
+          foods_to_avoid: data.foods_to_avoid || null,
+          dietary_restrictions: data.dietary_restrictions || null,
+          protein_preference: data.protein_preference || null,
+        }))
 
         if (data.profile_completed) {
           await loadPlan()
@@ -391,16 +419,25 @@ export default function PlanPage() {
 
               {/* Day content */}
               <div className="rounded-2xl bg-card p-4 shadow-sm">
-                <DayCard day={aiPlan.days[selectedDay]} />
+                <DayCard day={sanitizeAIPlanDay(aiPlan.days[selectedDay], forbiddenTerms)} />
               </div>
             </>
           ) : (
             /* Markdown fallback for old plans */
-            <div className="rounded-2xl bg-card p-5 shadow-sm">
-              <ReactMarkdown components={markdownComponents}>
-                {plan.plan_content}
-              </ReactMarkdown>
-            </div>
+            <>
+              {forbiddenTerms.length > 0 && (
+                <div className="rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 p-3">
+                  <p className="text-xs text-amber-700 dark:text-amber-300 font-medium">
+                    Este plano foi gerado antes das suas restricoes atuais. Gere um novo plano para garantir que respeite suas preferencias.
+                  </p>
+                </div>
+              )}
+              <div className="rounded-2xl bg-card p-5 shadow-sm">
+                <ReactMarkdown components={markdownComponents}>
+                  {plan.plan_content}
+                </ReactMarkdown>
+              </div>
+            </>
           )}
 
           {/* Regenerate */}

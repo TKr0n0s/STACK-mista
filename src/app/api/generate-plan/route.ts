@@ -7,6 +7,8 @@ import {
   getExcludedProteinTerms,
   parseFoodsToAvoid,
   validateAIOutput,
+  buildAllForbiddenTerms,
+  hasProteinDietConflict,
 } from '@/lib/content/medical-claims'
 import { sanitizePromptInput } from '@/lib/content/sanitize-prompt'
 import { logger } from '@/lib/logger'
@@ -130,10 +132,26 @@ export async function POST() {
   const excludedProteinTerms = getExcludedProteinTerms(profile.protein_preference)
   const excludedProteinsPrompt = excludedProteinTerms.join(', ')
 
-  // Merge food avoidance + protein exclusion for post-generation validation
-  const allFoodsToValidate = [...expandedFoodsToAvoid, ...excludedProteinTerms]
+  // Canonical merged validation list (foods_to_avoid + dietary_restrictions + protein exclusion)
+  const allFoodsToValidate = buildAllForbiddenTerms({
+    foods_to_avoid: profile.foods_to_avoid,
+    dietary_restrictions: profile.dietary_restrictions,
+    protein_preference: profile.protein_preference,
+  })
+
+  // Detect conflict: dietary restriction blocks the preferred protein
+  const conflict = hasProteinDietConflict(profile.dietary_restrictions, profile.protein_preference)
 
   const ratio = getFastingRatio(profile.fasting_start_hour ?? 20, profile.fasting_end_hour ?? 12)
+
+  // Build protein section of prompt based on conflict detection
+  const proteinPromptSection = conflict
+    ? `- Use SOMENTE proteinas compativeis com as restricoes acima (${sanitizedRestrictions}).`
+    : `- Proteina UNICA permitida: ${profile.protein_preference || 'qualquer'}. TODAS as refeicoes devem usar SOMENTE esta proteina.${excludedProteinsPrompt ? `\n- PROTEINAS PROIBIDAS (nao usar em hipotese alguma): ${excludedProteinsPrompt}` : ''}`
+
+  const proteinRuleSection = conflict
+    ? `- PROTEINA: Use SOMENTE proteinas compativeis com as restricoes dieteticas. NAO use proteinas de origem animal se a restricao proibir.`
+    : `- PROTEINA: Use SOMENTE ${profile.protein_preference || 'a proteina escolhida'} como fonte proteica. NUNCA use ${excludedProteinsPrompt || 'outras proteinas'}`
 
   const prompt = `Voce e uma nutricionista especializada em jejum intermitente para mulheres na menopausa. Crie um plano personalizado de jejum intermitente ${ratio.label} com 7 dias.
 
@@ -145,12 +163,12 @@ Dados da paciente:
 - Restricoes: ${sanitizedRestrictions || 'nenhuma'}
 - NAO come: ${sanitizedFoodsToAvoid || 'nenhuma restricao'}
 - ITENS PROIBIDOS (alergia/intolerancia): ${foodsToAvoidPrompt || 'nenhum informado'}
-- Proteina UNICA permitida: ${profile.protein_preference || 'qualquer'}. TODAS as refeicoes devem usar SOMENTE esta proteina.${excludedProteinsPrompt ? `\n- PROTEINAS PROIBIDAS (nao usar em hipotese alguma): ${excludedProteinsPrompt}` : ''}
+${proteinPromptSection}
 
 REGRAS:
 - Trate "ITENS PROIBIDOS" como alergia grave. NUNCA cite, sugira ou inclua esses alimentos
 - NUNCA sugira alimentos de "NAO come"
-- PROTEINA: Use SOMENTE ${profile.protein_preference || 'a proteina escolhida'} como fonte proteica. NUNCA use ${excludedProteinsPrompt || 'outras proteinas'}
+${proteinRuleSection}
 - Use APENAS ingredientes comuns no Brasil
 - Use o nome ${sanitizedName} nos textos motivacionais
 - Tom acolhedor e motivador. Portugues brasileiro.

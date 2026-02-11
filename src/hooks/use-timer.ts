@@ -13,7 +13,7 @@ function getToday() {
 }
 
 export function useTimer(durationMs?: number) {
-  const fastingDuration = durationMs ?? DEFAULT_FASTING_DURATION_MS
+  const fastingDuration = (durationMs && durationMs > 0) ? durationMs : DEFAULT_FASTING_DURATION_MS
   const { fastingState, fastingStartedAt, setFasting } = useStore()
   const [elapsed, setElapsed] = useState(0)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -121,7 +121,7 @@ export function useTimer(durationMs?: number) {
   }, [fastingStartedAt, setFasting])
 
   const remaining = Math.max(0, fastingDuration - elapsed)
-  const progress = Math.min(1, elapsed / fastingDuration)
+  const progress = fastingDuration > 0 ? Math.min(1, elapsed / fastingDuration) : 0
 
   const hours = Math.floor(remaining / (1000 * 60 * 60))
   const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60))

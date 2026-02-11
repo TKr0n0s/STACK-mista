@@ -123,7 +123,7 @@ export function OnboardingForm() {
       case 3: return !!activityLevel
       case 4: return dietaryRestrictions.length > 0
       case 5: return !!proteinPreference
-      case 6: return consent
+      case 6: return consent && fastingStart !== fastingEnd
       default: return false
     }
   }
@@ -504,6 +504,12 @@ export function OnboardingForm() {
               </div>
             </CardContent>
           </Card>
+
+          {fastingStart === fastingEnd && (
+            <p className="text-sm text-destructive text-center">
+              Inicio e fim nao podem ser iguais.
+            </p>
+          )}
 
           <ConsentCheckbox
             checked={consent}

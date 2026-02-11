@@ -16,7 +16,15 @@ const profileUpdateSchema = z.object({
   fasting_end_hour: z.number().int().min(0).max(23).optional(),
   profile_completed: z.boolean().optional(),
   program_start_date: z.string().datetime().optional(),
-})
+}).refine(
+  (data) => {
+    if (data.fasting_start_hour != null && data.fasting_end_hour != null) {
+      return data.fasting_start_hour !== data.fasting_end_hour
+    }
+    return true
+  },
+  { message: 'Horario de inicio e fim do jejum nao podem ser iguais', path: ['fasting_end_hour'] }
+)
 
 export async function GET() {
   const supabase = await createClient()
@@ -59,6 +67,18 @@ export async function PUT(request: NextRequest) {
       { error: 'Dados inválidos', details: parsed.error.flatten() },
       { status: 400 }
     )
+  }
+
+  // Normalize dietary restrictions: PT→EN canonical keys
+  if (parsed.data.dietary_restrictions) {
+    const ptToEn: Record<string, string> = {
+      'vegetariana': 'vegetarian', 'vegana': 'vegan',
+      'sem lactose': 'lactose_free', 'sem gluten': 'gluten_free',
+    }
+    parsed.data.dietary_restrictions = parsed.data.dietary_restrictions.map(r => {
+      const n = r.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+      return ptToEn[n] || r
+    })
   }
 
   // Check if user row already exists (created during auth/email-login)

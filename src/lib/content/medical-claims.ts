@@ -167,6 +167,107 @@ export function containsProhibitedFood(
   return findProhibitedFoods(content, foodsToAvoid).length > 0
 }
 
+// Dietary restriction → prohibited food terms mapping.
+// Used by buildAllForbiddenTerms() to block foods by dietary restriction.
+const DIETARY_RESTRICTION_FOOD_TERMS: Record<string, string[]> = {
+  vegetarian: [
+    'carne', 'carne bovina', 'carne vermelha', 'carne moida', 'picanha',
+    'file mignon', 'patinho', 'acem', 'alcatra', 'maminha', 'costela',
+    'frango', 'peito de frango', 'coxa de frango', 'sobrecoxa',
+    'frango grelhado', 'frango desfiado',
+    'peixe', 'salmao', 'tilapia', 'atum', 'sardinha', 'bacalhau',
+    'camarao', 'frutos do mar', 'marisco', 'mariscos',
+    'bacon', 'presunto', 'salsicha', 'linguica',
+  ],
+  vegan: [
+    'carne', 'carne bovina', 'carne vermelha', 'carne moida', 'picanha',
+    'file mignon', 'patinho', 'acem', 'alcatra', 'maminha', 'costela',
+    'frango', 'peito de frango', 'coxa de frango', 'sobrecoxa',
+    'frango grelhado', 'frango desfiado',
+    'peixe', 'salmao', 'tilapia', 'atum', 'sardinha', 'bacalhau',
+    'camarao', 'frutos do mar', 'marisco', 'mariscos',
+    'bacon', 'presunto', 'salsicha', 'linguica',
+    'leite', 'queijo', 'iogurte', 'manteiga', 'creme de leite',
+    'ovo', 'ovos', 'omelete', 'ovos mexidos', 'ovo cozido', 'gema', 'clara',
+    'mel',
+  ],
+  lactose_free: [
+    'leite', 'lactose', 'queijo', 'iogurte', 'manteiga', 'creme de leite',
+  ],
+  gluten_free: [
+    'gluten', 'trigo', 'centeio', 'cevada', 'malte',
+    'pao', 'macarrao', 'massa', 'farinha de trigo', 'biscoito', 'bolo',
+  ],
+}
+
+// Maps legacy Portuguese dietary restriction labels to canonical English keys.
+const PT_TO_EN_DIETARY_MAP: Record<string, string> = {
+  'vegetariana': 'vegetarian',
+  'vegana': 'vegan',
+  'sem lactose': 'lactose_free',
+  'sem gluten': 'gluten_free',
+}
+
+export interface UserFoodProfile {
+  foods_to_avoid?: string | string[] | null
+  dietary_restrictions?: string[] | null
+  protein_preference?: string | null
+}
+
+/**
+ * Builds a unified list of ALL forbidden food terms from:
+ * 1. foods_to_avoid (expanded with synonyms)
+ * 2. dietary_restrictions → DIETARY_RESTRICTION_FOOD_TERMS
+ * 3. protein exclusion (all proteins except preferred)
+ *
+ * Rule: dietary_restrictions ALWAYS wins over protein_preference.
+ */
+export function buildAllForbiddenTerms(profile: UserFoodProfile): string[] {
+  const allTerms = new Set<string>()
+
+  // 1. foods_to_avoid expanded with synonyms
+  for (const t of getExpandedFoodsToAvoid(profile.foods_to_avoid)) {
+    allTerms.add(t)
+  }
+
+  // 2. dietary_restrictions → prohibited terms (PT→EN fallback for legacy data)
+  if (profile.dietary_restrictions) {
+    for (const restriction of profile.dietary_restrictions) {
+      const key = PT_TO_EN_DIETARY_MAP[normalizeText(restriction)] || restriction
+      const terms = DIETARY_RESTRICTION_FOOD_TERMS[key]
+      if (terms) terms.forEach(t => allTerms.add(normalizeText(t)))
+    }
+  }
+
+  // 3. Excluded proteins (dietary_restrictions may have already blocked the preferred one — ok)
+  for (const t of getExcludedProteinTerms(profile.protein_preference)) {
+    allTerms.add(normalizeText(t))
+  }
+
+  return Array.from(allTerms)
+}
+
+/**
+ * Detects if the user's protein preference conflicts with their dietary restrictions.
+ * E.g., vegan + fish = true, vegetarian + eggs = false, vegetarian + meat = true.
+ */
+export function hasProteinDietConflict(
+  dietaryRestrictions: string[] | null | undefined,
+  proteinPreference: string | null | undefined
+): boolean {
+  if (!dietaryRestrictions || !proteinPreference) return false
+  const proteinTerms = PROTEIN_GROUPS[proteinPreference]
+  if (!proteinTerms) return false
+
+  for (const restriction of dietaryRestrictions) {
+    const key = PT_TO_EN_DIETARY_MAP[normalizeText(restriction)] || restriction
+    const forbidden = DIETARY_RESTRICTION_FOOD_TERMS[key]
+    if (!forbidden) continue
+    if (proteinTerms.some(pt => forbidden.includes(normalizeText(pt)))) return true
+  }
+  return false
+}
+
 // Protein groups mapped by preference key.
 // Used to build exclusion lists: all proteins EXCEPT the user's preferred one.
 const PROTEIN_GROUPS: Record<string, string[]> = {

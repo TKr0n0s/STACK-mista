@@ -1,5 +1,5 @@
 import type { Meal, Week1Day } from '@/lib/types'
-import { containsProhibitedFood, getExpandedFoodsToAvoid } from '@/lib/content/medical-claims'
+import { containsProhibitedFood, getExpandedFoodsToAvoid, buildAllForbiddenTerms, type UserFoodProfile } from '@/lib/content/medical-claims'
 
 type MealType = 'breakfast' | 'lunch' | 'dinner'
 
@@ -58,3 +58,26 @@ export function sanitizeDayForFoodSafety(
     },
   }
 }
+
+/**
+ * Sanitize a day using the full user food profile (foods_to_avoid + dietary_restrictions + protein_preference).
+ * Uses buildAllForbiddenTerms() for canonical forbidden terms.
+ * Apply to ALL render paths: AI plan, static fallback, and plan page.
+ */
+export function sanitizeDayWithProfile(
+  day: Week1Day,
+  profile: UserFoodProfile
+): Week1Day {
+  const allForbidden = buildAllForbiddenTerms(profile)
+  if (allForbidden.length === 0) return day
+  return {
+    ...day,
+    meals: {
+      breakfast: sanitizeMeal(day.meals.breakfast, 'breakfast', allForbidden),
+      lunch: sanitizeMeal(day.meals.lunch, 'lunch', allForbidden),
+      dinner: sanitizeMeal(day.meals.dinner, 'dinner', allForbidden),
+    },
+  }
+}
+
+export { SAFE_MEAL_FALLBACKS }
