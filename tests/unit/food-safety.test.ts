@@ -6,16 +6,29 @@ import {
 } from '@/lib/content/medical-claims'
 
 describe('buildAllForbiddenTerms — matrix of 12 cases', () => {
-  it('vegetariana basico: blocks carne, frango, peixe', () => {
+  it('vegetariana basico: blocks carne, frango (peixe blocked via protein exclusion)', () => {
     const terms = buildAllForbiddenTerms({
       dietary_restrictions: ['vegetarian'],
       protein_preference: 'eggs',
     })
     expect(terms).toContain('carne')
     expect(terms).toContain('frango')
+    // peixe is blocked via protein exclusion (eggs excludes fish), NOT via vegetarian restriction
     expect(terms).toContain('peixe')
     // Should NOT block eggs (preferred protein)
     expect(terms).not.toContain('ovo')
+  })
+
+  it('vegetariana + peixe: peixe PERMITIDO (pescetariana brasileira)', () => {
+    const terms = buildAllForbiddenTerms({
+      dietary_restrictions: ['vegetarian'],
+      protein_preference: 'fish',
+    })
+    expect(terms).toContain('carne')
+    expect(terms).toContain('frango')
+    // Fish is allowed — Brazilian vegetarians often eat fish
+    expect(terms).not.toContain('peixe')
+    expect(terms).not.toContain('salmao')
   })
 
   it('vegana completo: blocks carne, frango, peixe, leite, ovo', () => {
@@ -85,7 +98,7 @@ describe('buildAllForbiddenTerms — matrix of 12 cases', () => {
     expect(terms).toContain('ovo')
   })
 
-  it('conflito vegetariana+meat: dietary_restrictions wins — carne blocked', () => {
+  it('conflito vegetariana+meat: carne blocked by diet, peixe by protein exclusion', () => {
     const terms = buildAllForbiddenTerms({
       dietary_restrictions: ['vegetarian'],
       protein_preference: 'meat',
@@ -93,6 +106,7 @@ describe('buildAllForbiddenTerms — matrix of 12 cases', () => {
     expect(terms).toContain('carne')
     expect(terms).toContain('picanha')
     expect(terms).toContain('frango')
+    // peixe blocked via protein exclusion (meat excludes fish), not via vegetarian
     expect(terms).toContain('peixe')
   })
 
@@ -103,6 +117,7 @@ describe('buildAllForbiddenTerms — matrix of 12 cases', () => {
     })
     expect(terms).toContain('carne')
     expect(terms).toContain('frango')
+    // peixe blocked via protein exclusion (eggs excludes fish)
     expect(terms).toContain('peixe')
   })
 
@@ -160,6 +175,10 @@ describe('hasProteinDietConflict', () => {
     expect(hasProteinDietConflict(['vegetarian'], 'chicken')).toBe(true)
   })
 
+  it('vegetarian + fish = false (pescetarian allowed in Brazil)', () => {
+    expect(hasProteinDietConflict(['vegetarian'], 'fish')).toBe(false)
+  })
+
   it('gluten_free + chicken = false', () => {
     expect(hasProteinDietConflict(['gluten_free'], 'chicken')).toBe(false)
   })
@@ -213,6 +232,18 @@ describe('validateAIOutput with buildAllForbiddenTerms', () => {
     })
     const result = validateAIOutput(
       'Almoco: Omelete com salada verde',
+      forbidden
+    )
+    expect(result.valid).toBe(true)
+  })
+
+  it('accepts salmao for vegetarian+fish profile (pescetarian)', () => {
+    const forbidden = buildAllForbiddenTerms({
+      dietary_restrictions: ['vegetarian'],
+      protein_preference: 'fish',
+    })
+    const result = validateAIOutput(
+      'Almoco: Salmao grelhado com salada',
       forbidden
     )
     expect(result.valid).toBe(true)

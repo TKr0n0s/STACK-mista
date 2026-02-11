@@ -169,14 +169,15 @@ export function containsProhibitedFood(
 
 // Dietary restriction → prohibited food terms mapping.
 // Used by buildAllForbiddenTerms() to block foods by dietary restriction.
+// NOTE: vegetarian does NOT block fish/seafood — in Brazil many "vegetarianos"
+// eat fish (pescetarian). If user chose vegetarian + fish, fish is allowed.
+// If user chose vegetarian + eggs, fish is still blocked via protein exclusion.
 const DIETARY_RESTRICTION_FOOD_TERMS: Record<string, string[]> = {
   vegetarian: [
     'carne', 'carne bovina', 'carne vermelha', 'carne moida', 'picanha',
     'file mignon', 'patinho', 'acem', 'alcatra', 'maminha', 'costela',
     'frango', 'peito de frango', 'coxa de frango', 'sobrecoxa',
     'frango grelhado', 'frango desfiado',
-    'peixe', 'salmao', 'tilapia', 'atum', 'sardinha', 'bacalhau',
-    'camarao', 'frutos do mar', 'marisco', 'mariscos',
     'bacon', 'presunto', 'salsicha', 'linguica',
   ],
   vegan: [
