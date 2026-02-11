@@ -13,6 +13,12 @@ import { logger } from '@/lib/logger'
 import { getFastingRatio } from '@/lib/fasting-utils'
 import { aiPlanSchema, stripCodeFences } from '@/lib/ai-plan-schema'
 
+function getProgramWeek(date: Date, programStartDate: string): number {
+  const start = new Date(programStartDate)
+  const daysSinceStart = Math.floor((date.getTime() - start.getTime()) / 86400000)
+  return Math.floor(daysSinceStart / 7) + 1
+}
+
 export async function GET() {
   const supabase = await createClient()
   const {
@@ -23,26 +29,39 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // Use order+limit instead of .single() to handle missing UNIQUE constraint
-  const { data: plans } = await supabase
+  const { data: plan } = await supabase
     .from('ai_plans')
     .select('plan_content, regenerations_today, last_regenerated_at')
     .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
-    .limit(1)
+    .single()
 
-  const data = plans?.[0]
-  if (!data) {
-    return NextResponse.json({ plan_content: null })
+  if (!plan) {
+    return NextResponse.json({ plan_content: null, stale: false })
   }
 
   // Reset regeneration count if not today
-  const lastRegen = new Date(data.last_regenerated_at || 0)
+  const lastRegen = new Date(plan.last_regenerated_at || 0)
   const isToday = lastRegen.toDateString() === new Date().toDateString()
 
+  // Determine if plan is stale (generated for a different program week)
+  let stale = false
+  const { data: profile } = await supabase
+    .from('users')
+    .select('program_start_date, created_at')
+    .eq('id', user.id)
+    .single()
+
+  if (profile) {
+    const programStart = profile.program_start_date || profile.created_at
+    const planWeek = getProgramWeek(lastRegen, programStart)
+    const currentWeek = getProgramWeek(new Date(), programStart)
+    stale = planWeek !== currentWeek
+  }
+
   return NextResponse.json({
-    plan_content: data.plan_content,
-    regenerations_today: isToday ? data.regenerations_today : 0,
+    plan_content: plan.plan_content,
+    regenerations_today: isToday ? plan.regenerations_today : 0,
+    stale,
   })
 }
 
@@ -76,20 +95,16 @@ export async function POST() {
     )
   }
 
-  // Check regeneration limit (3/day) — use order+limit to handle missing UNIQUE
-  const { data: existingPlans } = await supabase
+  // Check regeneration limit (3/day)
+  const { data: existingPlan } = await supabase
     .from('ai_plans')
-    .select('id, regenerations_today, last_regenerated_at')
+    .select('regenerations_today, last_regenerated_at')
     .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
-    .limit(1)
-
-  const existingPlan = existingPlans?.[0] ?? null
+    .single()
 
   if (existingPlan) {
     const lastRegen = new Date(existingPlan.last_regenerated_at || 0)
-    const isToday =
-      lastRegen.toDateString() === new Date().toDateString()
+    const isToday = lastRegen.toDateString() === new Date().toDateString()
     if (isToday && existingPlan.regenerations_today >= 3) {
       return NextResponse.json(
         { error: 'Limite de 3 geracoes por dia atingido' },
@@ -206,7 +221,7 @@ IMPORTANTE: O array "days" deve ter EXATAMENTE 7 objetos (day 1 a 7). Cada refei
         continue
       }
 
-      // Save plan — use explicit update/insert since ai_plans lacks UNIQUE(user_id)
+      // Save plan via upsert (requires UNIQUE constraint on user_id)
       const regenCount =
         existingPlan &&
         new Date(existingPlan.last_regenerated_at || 0).toDateString() ===
@@ -214,37 +229,21 @@ IMPORTANTE: O array "days" deve ter EXATAMENTE 7 objetos (day 1 a 7). Cada refei
           ? existingPlan.regenerations_today + 1
           : 1
 
-      const planPayload = {
-        plan_content: content,
-        regenerations_today: regenCount,
-        last_regenerated_at: new Date().toISOString(),
-      }
+      const { error: upsertError } = await supabase
+        .from('ai_plans')
+        .upsert({
+          user_id: user.id,
+          plan_content: content,
+          regenerations_today: regenCount,
+          last_regenerated_at: new Date().toISOString(),
+        }, { onConflict: 'user_id' })
 
-      if (existingPlan) {
-        const { error: updateError } = await supabase
-          .from('ai_plans')
-          .update(planPayload)
-          .eq('id', existingPlan.id)
-
-        if (updateError) {
-          logger.error({ updateError }, 'Failed to update ai_plan')
-          return NextResponse.json(
-            { error: 'Erro ao salvar plano' },
-            { status: 500 }
-          )
-        }
-      } else {
-        const { error: insertError } = await supabase
-          .from('ai_plans')
-          .insert({ user_id: user.id, ...planPayload })
-
-        if (insertError) {
-          logger.error({ insertError }, 'Failed to insert ai_plan')
-          return NextResponse.json(
-            { error: 'Erro ao salvar plano' },
-            { status: 500 }
-          )
-        }
+      if (upsertError) {
+        logger.error({ upsertError }, 'Failed to upsert ai_plan')
+        return NextResponse.json(
+          { error: 'Erro ao salvar plano' },
+          { status: 500 }
+        )
       }
 
       return NextResponse.json({

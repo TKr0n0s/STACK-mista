@@ -88,6 +88,11 @@ export default function DashboardPage() {
               }
               setDay(mappedDay)
               usedAIPlan = true
+
+              // If plan is stale (from previous week), trigger regeneration in background
+              if (planData.stale && planData.regenerations_today < 3) {
+                fetch('/api/generate-plan', { method: 'POST' }).catch(() => {})
+              }
             }
           }
         }

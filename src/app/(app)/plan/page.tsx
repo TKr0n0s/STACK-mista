@@ -214,7 +214,13 @@ export default function PlanPage() {
       const res = await fetch('/api/generate-plan', { method: 'GET' })
       if (res.ok) {
         const data = await res.json()
-        if (data.plan_content) setPlan(data)
+        if (data.plan_content) {
+          setPlan(data)
+          // Auto-regenerate if plan is from a previous week
+          if (data.stale && data.regenerations_today < 3) {
+            await generatePlan()
+          }
+        }
       }
     } catch {
       // no plan yet
