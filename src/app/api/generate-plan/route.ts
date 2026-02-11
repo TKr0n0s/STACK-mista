@@ -4,6 +4,7 @@ import { getGeminiModel } from '@/lib/gemini'
 import { aiRateLimiter } from '@/lib/rate-limit'
 import {
   getExpandedFoodsToAvoid,
+  getExcludedProteinTerms,
   parseFoodsToAvoid,
   validateAIOutput,
 } from '@/lib/content/medical-claims'
@@ -109,6 +110,13 @@ export async function POST() {
   const expandedFoodsToAvoid = getExpandedFoodsToAvoid(parsedFoodsToAvoid)
   const foodsToAvoidPrompt = expandedFoodsToAvoid.join(', ')
 
+  // Build protein exclusion list
+  const excludedProteinTerms = getExcludedProteinTerms(profile.protein_preference)
+  const excludedProteinsPrompt = excludedProteinTerms.join(', ')
+
+  // Merge food avoidance + protein exclusion for post-generation validation
+  const allFoodsToValidate = [...expandedFoodsToAvoid, ...excludedProteinTerms]
+
   const ratio = getFastingRatio(profile.fasting_start_hour ?? 20, profile.fasting_end_hour ?? 12)
 
   const prompt = `Voce e uma nutricionista especializada em jejum intermitente para mulheres na menopausa. Crie um plano personalizado de jejum intermitente ${ratio.label}.
@@ -121,11 +129,12 @@ Dados da paciente:
 - Restricoes: ${sanitizedRestrictions || 'nenhuma'}
 - NAO come: ${sanitizedFoodsToAvoid || 'nenhuma restricao'}
 - ITENS PROIBIDOS (alergia/intolerancia): ${foodsToAvoidPrompt || 'nenhum informado'}
-- Proteina preferida: ${profile.protein_preference}
+- Proteina UNICA permitida: ${profile.protein_preference || 'qualquer'}. TODAS as refeicoes devem usar SOMENTE esta proteina.${excludedProteinsPrompt ? `\n- PROTEINAS PROIBIDAS (nao usar em hipotese alguma): ${excludedProteinsPrompt}` : ''}
 
 REGRAS:
 - Trate "ITENS PROIBIDOS" como alergia grave. NUNCA cite, sugira ou inclua esses alimentos
 - NUNCA sugira alimentos de "NAO come"
+- PROTEINA: Use SOMENTE ${profile.protein_preference || 'a proteina escolhida'} como fonte proteica. NUNCA use ${excludedProteinsPrompt || 'outras proteinas'}
 - Use APENAS ingredientes comuns no Brasil
 - Use o nome ${sanitizedName} ao longo do texto
 - Tom acolhedor e motivador. Portugues brasileiro.
@@ -148,10 +157,10 @@ REGRAS:
         continue
       }
 
-      // Validate output
+      // Validate output (checks foods to avoid + excluded proteins)
       const validation = validateAIOutput(
         content,
-        expandedFoodsToAvoid
+        allFoodsToValidate
       )
 
       if (!validation.valid) {

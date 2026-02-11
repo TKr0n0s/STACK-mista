@@ -166,3 +166,26 @@ export function containsProhibitedFood(
 ): boolean {
   return findProhibitedFoods(content, foodsToAvoid).length > 0
 }
+
+// Protein groups mapped by preference key.
+// Used to build exclusion lists: all proteins EXCEPT the user's preferred one.
+const PROTEIN_GROUPS: Record<string, string[]> = {
+  chicken: ['frango', 'peito de frango', 'coxa de frango', 'sobrecoxa', 'frango grelhado', 'frango desfiado'],
+  fish: ['peixe', 'salmao', 'tilapia', 'atum', 'sardinha', 'bacalhau', 'camarao', 'frutos do mar', 'marisco'],
+  meat: ['carne bovina', 'carne vermelha', 'carne moida', 'picanha', 'file mignon', 'patinho', 'acem', 'alcatra', 'maminha', 'costela'],
+  eggs: ['ovo', 'ovos', 'omelete', 'ovo cozido', 'ovo mexido', 'ovos mexidos', 'gema', 'clara'],
+  legumes: ['grao-de-bico', 'grao de bico', 'lentilha', 'ervilha', 'soja', 'tofu', 'edamame'],
+}
+
+/**
+ * Returns all protein terms that should be EXCLUDED based on user's preference.
+ * If preference is "chicken", returns all fish/meat/eggs/legumes terms.
+ * If preference is null/undefined, returns empty (no restriction).
+ */
+export function getExcludedProteinTerms(preference: string | null | undefined): string[] {
+  if (!preference || !PROTEIN_GROUPS[preference]) return []
+
+  return Object.entries(PROTEIN_GROUPS)
+    .filter(([key]) => key !== preference)
+    .flatMap(([, terms]) => terms)
+}
