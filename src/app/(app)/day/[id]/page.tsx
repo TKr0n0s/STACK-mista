@@ -55,9 +55,9 @@ export default function DayDetailPage() {
                   day: dayNumber,
                   title: aiDay.title,
                   meals: {
-                    breakfast: { name: aiDay.meals.breakfast.name, desc: aiDay.meals.breakfast.desc, image: getMealImage(aiDay.meals.breakfast.name, 'breakfast'), kcal: aiDay.meals.breakfast.kcal },
-                    lunch: { name: aiDay.meals.lunch.name, desc: aiDay.meals.lunch.desc, image: getMealImage(aiDay.meals.lunch.name, 'lunch'), kcal: aiDay.meals.lunch.kcal },
-                    dinner: { name: aiDay.meals.dinner.name, desc: aiDay.meals.dinner.desc, image: getMealImage(aiDay.meals.dinner.name, 'dinner'), kcal: aiDay.meals.dinner.kcal },
+                    breakfast: { name: aiDay.meals.breakfast.name, desc: aiDay.meals.breakfast.desc, image: aiDay.meals.breakfast.image_url || getMealImage(aiDay.meals.breakfast.name, 'breakfast'), kcal: aiDay.meals.breakfast.kcal },
+                    lunch: { name: aiDay.meals.lunch.name, desc: aiDay.meals.lunch.desc, image: aiDay.meals.lunch.image_url || getMealImage(aiDay.meals.lunch.name, 'lunch'), kcal: aiDay.meals.lunch.kcal },
+                    dinner: { name: aiDay.meals.dinner.name, desc: aiDay.meals.dinner.desc, image: aiDay.meals.dinner.image_url || getMealImage(aiDay.meals.dinner.name, 'dinner'), kcal: aiDay.meals.dinner.kcal },
                   },
                   hydration: aiDay.hydration,
                   exercise: aiDay.exercise,
@@ -158,7 +158,7 @@ export default function DayDetailPage() {
             >
               <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl">
                 <MealImage
-                  src={`/meals/${meal.image}`}
+                  src={meal.image.startsWith('http') ? meal.image : `/meals/${meal.image}`}
                   alt={meal.name}
                   fill
                   className="object-cover"
@@ -191,7 +191,7 @@ export default function DayDetailPage() {
                 {/* Large meal image */}
                 <div className="relative h-36">
                   <MealImage
-                    src={`/meals/${meal.image}`}
+                    src={meal.image.startsWith('http') ? meal.image : `/meals/${meal.image}`}
                     alt={meal.name}
                     fill
                     className="object-cover"

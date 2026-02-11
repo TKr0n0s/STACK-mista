@@ -14,6 +14,7 @@ import { sanitizePromptInput } from '@/lib/content/sanitize-prompt'
 import { logger } from '@/lib/logger'
 import { getFastingRatio } from '@/lib/fasting-utils'
 import { aiPlanSchema, stripCodeFences } from '@/lib/ai-plan-schema'
+import { buildSafeFallbackPlan } from '@/lib/content/safe-plan-fallback'
 
 function getProgramWeek(date: Date, programStartDate: string): number {
   const start = new Date(programStartDate)
@@ -274,10 +275,40 @@ IMPORTANTE: O array "days" deve ter EXATAMENTE 7 objetos (day 1 a 7). Cada refei
     }
   }
 
-  logger.error({ lastError, totalAttempts: attempts }, 'All plan generation attempts failed')
+  // All AI attempts failed — use deterministic safe fallback (never return 500)
+  logger.warn({ lastError, totalAttempts: attempts, userId: user.id }, 'AI failed 3x — using safe fallback plan')
 
-  return NextResponse.json(
-    { error: 'Erro ao gerar plano. Tente novamente mais tarde.' },
-    { status: 500 }
-  )
+  const fallbackContent = JSON.stringify(buildSafeFallbackPlan({
+    dietary_restrictions: profile.dietary_restrictions,
+    protein_preference: profile.protein_preference,
+    foods_to_avoid: profile.foods_to_avoid,
+    name: profile.name,
+  }))
+
+  const lastRegen = new Date(existingPlan?.last_regenerated_at || 0)
+  const isToday = lastRegen.toDateString() === new Date().toDateString()
+  const regenCount = existingPlan && isToday ? existingPlan.regenerations_today + 1 : 1
+
+  const { error: fallbackUpsertError } = await supabase
+    .from('ai_plans')
+    .upsert({
+      user_id: user.id,
+      plan_content: fallbackContent,
+      regenerations_today: regenCount,
+      last_regenerated_at: new Date().toISOString(),
+    }, { onConflict: 'user_id' })
+
+  if (fallbackUpsertError) {
+    logger.error({ fallbackUpsertError }, 'Failed to upsert fallback plan')
+    return NextResponse.json(
+      { error: 'Erro ao salvar plano' },
+      { status: 500 }
+    )
+  }
+
+  return NextResponse.json({
+    plan_content: fallbackContent,
+    regenerations_today: regenCount,
+    fallback: true,
+  })
 }

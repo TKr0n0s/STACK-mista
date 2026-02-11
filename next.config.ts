@@ -13,6 +13,9 @@ const nextConfig: NextConfig = {
     unoptimized: false,
     imageSizes: [64, 96, 128, 192, 256, 384],
     deviceSizes: [640, 750, 828, 1080],
+    remotePatterns: [
+      { protocol: 'https', hostname: 'images.pexels.com' },
+    ],
   },
   // Security headers (A12)
   async headers() {

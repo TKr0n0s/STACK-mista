@@ -81,9 +81,9 @@ export default function DashboardPage() {
                 day: programDay,
                 title: aiDay.title,
                 meals: {
-                  breakfast: { name: aiDay.meals.breakfast.name, desc: aiDay.meals.breakfast.desc, image: getMealImage(aiDay.meals.breakfast.name, 'breakfast'), kcal: aiDay.meals.breakfast.kcal },
-                  lunch: { name: aiDay.meals.lunch.name, desc: aiDay.meals.lunch.desc, image: getMealImage(aiDay.meals.lunch.name, 'lunch'), kcal: aiDay.meals.lunch.kcal },
-                  dinner: { name: aiDay.meals.dinner.name, desc: aiDay.meals.dinner.desc, image: getMealImage(aiDay.meals.dinner.name, 'dinner'), kcal: aiDay.meals.dinner.kcal },
+                  breakfast: { name: aiDay.meals.breakfast.name, desc: aiDay.meals.breakfast.desc, image: aiDay.meals.breakfast.image_url || getMealImage(aiDay.meals.breakfast.name, 'breakfast'), kcal: aiDay.meals.breakfast.kcal },
+                  lunch: { name: aiDay.meals.lunch.name, desc: aiDay.meals.lunch.desc, image: aiDay.meals.lunch.image_url || getMealImage(aiDay.meals.lunch.name, 'lunch'), kcal: aiDay.meals.lunch.kcal },
+                  dinner: { name: aiDay.meals.dinner.name, desc: aiDay.meals.dinner.desc, image: aiDay.meals.dinner.image_url || getMealImage(aiDay.meals.dinner.name, 'dinner'), kcal: aiDay.meals.dinner.kcal },
                 },
                 hydration: aiDay.hydration,
                 exercise: aiDay.exercise,

@@ -4,6 +4,7 @@ const mealSchema = z.object({
   name: z.string().min(1),
   desc: z.string().min(1),
   kcal: z.number().min(0),
+  image_url: z.string().url().optional(),
 })
 
 const daySchema = z.object({

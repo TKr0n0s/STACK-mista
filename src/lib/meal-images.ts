@@ -1,9 +1,12 @@
 /**
  * Maps AI-generated meal names to existing meal photos by keyword matching.
+ * Pexels images (80+ specific photos) have priority over local fallbacks.
  * Falls back to a sensible default per meal type.
  */
 
-const MEAL_IMAGE_MAP: [string, string][] = [
+import pexelsMap from '@/data/pexels-image-map.json'
+
+const LOCAL_IMAGE_MAP: [string, string][] = [
   // Chicken
   ['frango grelhado', 'chicken-sweet-potato.jpg'],
   ['frango desfiado', 'chicken-wrap.jpg'],
@@ -69,6 +72,12 @@ const DEFAULTS: Record<string, string> = {
 function normalize(text: string): string {
   return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
 }
+
+// Pexels images first (more specific), then local fallbacks
+const MEAL_IMAGE_MAP: [string, string][] = [
+  ...Object.entries(pexelsMap).map(([keyword, file]) => [keyword, file] as [string, string]),
+  ...LOCAL_IMAGE_MAP,
+]
 
 export function getMealImage(mealName: string, type: 'breakfast' | 'lunch' | 'dinner'): string {
   const n = normalize(mealName)

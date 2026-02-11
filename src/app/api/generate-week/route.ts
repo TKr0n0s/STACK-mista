@@ -12,6 +12,8 @@ import {
 } from '@/lib/content/medical-claims'
 import { sanitizePromptInput } from '@/lib/content/sanitize-prompt'
 import { aiRateLimiter } from '@/lib/rate-limit'
+import { buildSafeFallbackWeek } from '@/lib/content/safe-plan-fallback'
+import { logger } from '@/lib/logger'
 import { SchemaType, type ResponseSchema } from '@google/generative-ai'
 
 const weekSchema: ResponseSchema = {
@@ -205,8 +207,34 @@ Para cada dia gere: title, 3 refeicoes (name + desc), hidratacao (water_target, 
     }
   }
 
-  return NextResponse.json(
-    { error: lastError?.message || 'AI generation failed after 3 attempts' },
-    { status: 500 }
-  )
+  // All AI attempts failed — use deterministic safe fallback (never return 500)
+  logger.warn({ userId: user.id, lastError: lastError?.message }, 'AI failed 3x week generation — using safe fallback')
+
+  const fallbackDays = buildSafeFallbackWeek({
+    dietary_restrictions: profile.dietary_restrictions,
+    protein_preference: profile.protein_preference,
+    foods_to_avoid: profile.foods_to_avoid,
+    name: profile.name,
+  }, weekNumber)
+
+  const days = fallbackDays.map(d => ({
+    ...d,
+    user_id: user.id,
+    week_number: weekNumber,
+    source: 'fallback' as const,
+  }))
+
+  const { error: fallbackInsertError } = await supabase.from('days').upsert(days, {
+    onConflict: 'user_id,week_number,day_number',
+  })
+
+  if (fallbackInsertError) {
+    logger.error({ fallbackInsertError }, 'Failed to upsert fallback week')
+    return NextResponse.json(
+      { error: fallbackInsertError.message },
+      { status: 500 }
+    )
+  }
+
+  return NextResponse.json({ success: true, days: fallbackDays, fallback: true })
 }

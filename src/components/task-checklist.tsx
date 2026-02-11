@@ -182,7 +182,7 @@ export function TaskChecklist({ day }: TaskChecklistProps) {
                 ) : meal ? (
                   <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-muted shadow-sm">
                     <MealImage
-                      src={`/meals/${meal.image}`}
+                      src={meal.image.startsWith('http') ? meal.image : `/meals/${meal.image}`}
                       alt={meal.name}
                       fill
                       className="object-cover"

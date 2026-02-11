@@ -61,11 +61,13 @@ function DayCard({ day }: { day: AIPlanDay }) {
     <div className="space-y-3">
       <h3 className="text-[15px] font-bold text-foreground">{day.title}</h3>
 
-      {meals.map(({ key, label, emoji, meal }) => (
+      {meals.map(({ key, label, emoji, meal }) => {
+        const imgSrc = meal.image_url || `/meals/${getMealImage(meal.name, key)}`
+        return (
         <div key={key} className="flex items-center gap-3 rounded-2xl bg-card p-3 shadow-sm">
           <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-muted shadow-sm">
             <MealImage
-              src={`/meals/${getMealImage(meal.name, key)}`}
+              src={imgSrc}
               alt={meal.name}
               fill
               className="object-cover"
@@ -82,7 +84,8 @@ function DayCard({ day }: { day: AIPlanDay }) {
             <span className="text-[11px] font-medium text-primary">{meal.kcal} kcal</span>
           </div>
         </div>
-      ))}
+        )
+      })}
 
       {/* Description for first meal visible */}
       <div className="rounded-xl bg-muted/50 p-3 space-y-2">
@@ -264,6 +267,8 @@ export default function PlanPage() {
       if (!res.ok) throw new Error(data.error || 'Erro ao gerar plano')
       setPlan(data)
       setSelectedDay(0)
+      // Enrich plan with Pexels images in background (best-effort)
+      fetch('/api/enrich-images', { method: 'POST' }).catch(() => {})
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro inesperado')
     } finally {
