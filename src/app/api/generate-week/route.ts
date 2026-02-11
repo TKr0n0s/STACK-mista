@@ -2,7 +2,11 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { getGeminiJsonModel } from '@/lib/gemini'
-import { validateAIOutput } from '@/lib/content/medical-claims'
+import {
+  getExpandedFoodsToAvoid,
+  parseFoodsToAvoid,
+  validateAIOutput,
+} from '@/lib/content/medical-claims'
 import { sanitizePromptInput } from '@/lib/content/sanitize-prompt'
 import { aiRateLimiter } from '@/lib/rate-limit'
 import { SchemaType, type ResponseSchema } from '@google/generative-ai'
@@ -98,9 +102,9 @@ export async function POST(request: Request) {
     .map((r: string) => sanitizePromptInput(r, 50))
     .join(', ')
 
-  const foodsToAvoid = profile.foods_to_avoid
-    ? profile.foods_to_avoid.split(',').map((f: string) => f.trim())
-    : []
+  const parsedFoodsToAvoid = parseFoodsToAvoid(profile.foods_to_avoid)
+  const expandedFoodsToAvoid = getExpandedFoodsToAvoid(parsedFoodsToAvoid)
+  const foodsToAvoidPrompt = expandedFoodsToAvoid.join(', ')
 
   const prompt = `Voce e uma nutricionista especializada em jejum intermitente para mulheres na menopausa.
 Crie 7 dias de refeicoes para ${sanitizedName}, Semana ${weekNumber}.
@@ -111,9 +115,11 @@ Perfil:
 - Atividade: ${profile.activity_level || 'nao informado'}
 - Restricoes: ${sanitizedRestrictions || 'nenhuma'}
 - NAO come: ${sanitizedFoodsToAvoid || 'nada especificado'}
+- ITENS PROIBIDOS (alergia/intolerancia): ${foodsToAvoidPrompt || 'nenhum informado'}
 - Proteina preferida: ${profile.protein_preference || 'variada'}
 
 REGRAS OBRIGATORIAS:
+- Trate "ITENS PROIBIDOS" como alergia grave. NUNCA cite, sugira ou inclua esses alimentos
 - NUNCA sugira alimentos de "NAO come"
 - Use APENAS ingredientes comuns no Brasil
 - Use o nome ${sanitizedName} nas motivacoes
@@ -135,7 +141,7 @@ Para cada dia gere: title, 3 refeicoes (name + desc), hidratacao (water_target, 
 
       // Validate content safety
       const fullContent = JSON.stringify(parsed)
-      const validation = validateAIOutput(fullContent, foodsToAvoid)
+      const validation = validateAIOutput(fullContent, expandedFoodsToAvoid)
 
       if (!validation.valid) {
         lastError = new Error(`Content validation failed: ${validation.issues.join(', ')}`)

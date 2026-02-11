@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import {
   containsMedicalClaims,
+  getExpandedFoodsToAvoid,
+  parseFoodsToAvoid,
   validateAIOutput,
 } from '@/lib/content/medical-claims'
 
@@ -105,5 +107,43 @@ describe('validateAIOutput', () => {
   it('matches exact food words', () => {
     const result = validateAIOutput('Arroz com carne moida', ['carne'])
     expect(result.valid).toBe(false)
+  })
+
+  it('expands fish terms when user blocks peixe', () => {
+    const result = validateAIOutput('Salmao grelhado com legumes', ['peixe'])
+    expect(result.valid).toBe(false)
+    expect(result.issues.some((issue) => issue.includes('salmao'))).toBe(true)
+  })
+
+  it('detects multi-word prohibited foods', () => {
+    const result = validateAIOutput('Prato com pimenta-do-reino', ['pimenta do reino'])
+    expect(result.valid).toBe(false)
+  })
+})
+
+describe('parseFoodsToAvoid', () => {
+  it('parses comma, semicolon and line breaks', () => {
+    const parsed = parseFoodsToAvoid('peixe; pimenta\ncamarao')
+    expect(parsed).toEqual(['peixe', 'pimenta', 'camarao'])
+  })
+
+  it('parses connectors "e" and "ou"', () => {
+    const parsed = parseFoodsToAvoid('pimenta ou peixe e camarao')
+    expect(parsed).toEqual(['pimenta', 'peixe', 'camarao'])
+  })
+})
+
+describe('getExpandedFoodsToAvoid', () => {
+  it('expands grouped food aliases', () => {
+    const expanded = getExpandedFoodsToAvoid(['peixe'])
+    expect(expanded).toContain('peixe')
+    expect(expanded).toContain('salmao')
+    expect(expanded).toContain('tilapia')
+  })
+
+  it('deduplicates values', () => {
+    const expanded = getExpandedFoodsToAvoid(['peixe', 'peixes'])
+    const unique = new Set(expanded)
+    expect(expanded.length).toBe(unique.size)
   })
 })

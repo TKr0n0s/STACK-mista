@@ -32,6 +32,7 @@ import {
   initializeReminders,
   stopAllReminders,
 } from '@/lib/notifications'
+import { getFastingRatio } from '@/lib/fasting-utils'
 
 interface UserProfile {
   name: string
@@ -248,6 +249,10 @@ export default function SettingsPage() {
       setSaveError('Hora de fim deve ser um número entre 0 e 23.')
       return
     }
+    if (startNum === endNum) {
+      setSaveError('Horário de início e fim não podem ser iguais.')
+      return
+    }
 
     setSaving(true)
     try {
@@ -307,7 +312,7 @@ export default function SettingsPage() {
     {
       icon: Clock,
       label: 'Horário do jejum',
-      desc: profile ? `${profile.fasting_start_hour}h - ${profile.fasting_end_hour}h (16:8)` : 'Personalizar janela 16:8',
+      desc: profile ? `${profile.fasting_start_hour}h - ${profile.fasting_end_hour}h (${getFastingRatio(profile.fasting_start_hour, profile.fasting_end_hour).label})` : 'Personalizar janela de jejum',
       action: () => setFastingOpen(true),
     },
     ...(notifSupported ? [{

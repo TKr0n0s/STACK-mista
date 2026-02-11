@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown'
 import { Button } from '@/components/ui/button'
 import { Star, Lock, RefreshCw, Loader2, Sparkles, Clock, Utensils, Droplets, Heart, Lightbulb } from 'lucide-react'
 import { ProfilingModal } from '@/components/profiling-modal'
+import { getFastingRatio } from '@/lib/fasting-utils'
 
 interface PlanData {
   plan_content: string
@@ -95,6 +96,8 @@ export default function PlanPage() {
   const [loading, setLoading] = useState(true)
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState('')
+  const [fastingStartHour, setFastingStartHour] = useState(20)
+  const [fastingEndHour, setFastingEndHour] = useState(12)
 
   useEffect(() => {
     loadProfile()
@@ -106,6 +109,8 @@ export default function PlanPage() {
       if (res.ok) {
         const data = await res.json()
         setProfileCompleted(data.profile_completed || false)
+        setFastingStartHour(data.fasting_start_hour ?? 20)
+        setFastingEndHour(data.fasting_end_hour ?? 12)
 
         if (data.profile_completed) {
           await loadPlan()
@@ -236,7 +241,7 @@ export default function PlanPage() {
                   Plano Personalizado
                 </p>
                 <p className="text-[15px] font-bold text-white">
-                  Jejum Intermitente 16:8
+                  Jejum Intermitente {getFastingRatio(fastingStartHour, fastingEndHour).label}
                 </p>
               </div>
             </div>

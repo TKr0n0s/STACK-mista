@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { MealImage } from '@/components/meal-image'
 import { ArrowLeft, Droplets, Dumbbell, Flame, Lightbulb, ChevronDown } from 'lucide-react'
 import type { Week1Data, Week1Day } from '@/lib/types'
+import { sanitizeDayForFoodSafety } from '@/lib/content/day-safety'
 
 export default function DayDetailPage() {
   const params = useParams()
@@ -21,9 +22,11 @@ export default function DayDetailPage() {
         // Get user's current week
         const profileRes = await fetch('/api/user/profile')
         let weekNumber = 1
+        let foodsToAvoidRaw: string | null = null
 
         if (profileRes.ok) {
           const profile = await profileRes.json()
+          foodsToAvoidRaw = profile.foods_to_avoid || null
           // Use program_start_date if available, fallback to created_at for migration period
           const programStartDate = profile.program_start_date || profile.created_at
           const daysSinceStart = Math.floor(
@@ -37,7 +40,7 @@ export default function DayDetailPage() {
         const res = await fetch(`/data/${weekFile}`)
         const data: Week1Data = await res.json()
         const found = data.days.find((d) => d.day === dayNumber)
-        setDay(found || null)
+        setDay(found ? sanitizeDayForFoodSafety(found, foodsToAvoidRaw) : null)
       } catch {
         // offline fallback
       } finally {

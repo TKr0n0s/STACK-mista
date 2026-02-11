@@ -6,13 +6,14 @@ import { useStore } from '@/lib/store'
 import { useUserId } from '@/hooks/use-user-id'
 import { enqueueSync } from '@/lib/sync/syncManager'
 
-const FASTING_DURATION_MS = 16 * 60 * 60 * 1000 // 16 hours
+const DEFAULT_FASTING_DURATION_MS = 16 * 60 * 60 * 1000 // 16 hours
 
 function getToday() {
   return new Date().toISOString().split('T')[0]
 }
 
-export function useTimer() {
+export function useTimer(durationMs?: number) {
+  const fastingDuration = durationMs ?? DEFAULT_FASTING_DURATION_MS
   const { fastingState, fastingStartedAt, setFasting } = useStore()
   const [elapsed, setElapsed] = useState(0)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -119,8 +120,8 @@ export function useTimer() {
     }
   }, [fastingStartedAt, setFasting])
 
-  const remaining = Math.max(0, FASTING_DURATION_MS - elapsed)
-  const progress = Math.min(1, elapsed / FASTING_DURATION_MS)
+  const remaining = Math.max(0, fastingDuration - elapsed)
+  const progress = Math.min(1, elapsed / fastingDuration)
 
   const hours = Math.floor(remaining / (1000 * 60 * 60))
   const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60))
@@ -139,6 +140,6 @@ export function useTimer() {
     seconds,
     startFasting,
     stopFasting,
-    isComplete: elapsed >= FASTING_DURATION_MS,
+    isComplete: elapsed >= fastingDuration,
   }
 }

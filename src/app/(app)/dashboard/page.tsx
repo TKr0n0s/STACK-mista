@@ -11,15 +11,17 @@ import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import type { Week1Data, Week1Day } from '@/lib/types'
 import { initializeReminders, isNotificationsEnabled } from '@/lib/notifications'
-import { getDayOfWeekLocal } from '@/lib/date-utils'
+import { sanitizeDayForFoodSafety } from '@/lib/content/day-safety'
+import { getFastingRatio } from '@/lib/fasting-utils'
 
 export default function DashboardPage() {
   const [day, setDay] = useState<Week1Day | null>(null)
   const [loading, setLoading] = useState(true)
-  const [dayIndex, setDayIndex] = useState(1)
   const [userName, setUserName] = useState('')
   const [currentWeek, setCurrentWeek] = useState(1)
   const [fetchError, setFetchError] = useState(false)
+  const [fastingStartHour, setFastingStartHour] = useState(20)
+  const [fastingEndHour, setFastingEndHour] = useState(12)
 
   const loadData = async () => {
     setLoading(true)
@@ -30,9 +32,11 @@ export default function DashboardPage() {
 
       let programDay = 1
       let weekNumber = 1
+      let foodsToAvoidRaw: string | null = null
 
       if (profileRes.ok) {
         const profile = await profileRes.json()
+        foodsToAvoidRaw = profile.foods_to_avoid || null
         // Use program_start_date if available, fallback to created_at for migration period
         const programStartDate = profile.program_start_date || profile.created_at
         const daysSinceStart = Math.floor(
@@ -43,6 +47,8 @@ export default function DashboardPage() {
         programDay = (daysSinceStart % 7) + 1
 
         if (profile.name) setUserName(profile.name.split(' ')[0])
+        setFastingStartHour(profile.fasting_start_hour ?? 20)
+        setFastingEndHour(profile.fasting_end_hour ?? 12)
 
         if (isNotificationsEnabled()) {
           initializeReminders(
@@ -52,7 +58,6 @@ export default function DashboardPage() {
         }
       }
 
-      setDayIndex(programDay)
       setCurrentWeek(weekNumber)
 
       // Load appropriate week data (weeks 5+ use generic plan)
@@ -61,13 +66,13 @@ export default function DashboardPage() {
 
       if (weekRes.ok) {
         const data: Week1Data = await weekRes.json()
-        setDay(data.days[programDay - 1] || data.days[0])
+        const selectedDay = data.days[programDay - 1] || data.days[0]
+        setDay(sanitizeDayForFoodSafety(selectedDay, foodsToAvoidRaw))
       } else {
         throw new Error('Failed to load week data')
       }
     } catch {
       setFetchError(true)
-      setDayIndex(getDayOfWeekLocal())
     } finally {
       setLoading(false)
     }
@@ -145,7 +150,11 @@ export default function DashboardPage() {
       </div>
 
       {/* HERO: Fasting Timer */}
-      <FastingTimer />
+      <FastingTimer
+        durationMs={getFastingRatio(fastingStartHour, fastingEndHour).fasting * 3600000}
+        startHour={fastingStartHour}
+        endHour={fastingEndHour}
+      />
 
       {/* Meal cards with images */}
       <TaskChecklist day={day} />

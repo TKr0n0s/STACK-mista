@@ -4,8 +4,15 @@ import { useTimer } from '@/hooks/use-timer'
 import { Button } from '@/components/ui/button'
 import { FastingPhases } from '@/components/fasting-phases'
 import { Play, Square } from 'lucide-react'
+import { getFastingRatio } from '@/lib/fasting-utils'
 
-export function FastingTimer() {
+interface FastingTimerProps {
+  durationMs?: number
+  startHour?: number
+  endHour?: number
+}
+
+export function FastingTimer({ durationMs, startHour = 20, endHour = 12 }: FastingTimerProps) {
   const {
     fastingState,
     progress,
@@ -16,7 +23,7 @@ export function FastingTimer() {
     startFasting,
     stopFasting,
     isComplete,
-  } = useTimer()
+  } = useTimer(durationMs)
 
   const isFasting = fastingState === 'fasting'
 
@@ -155,7 +162,7 @@ export function FastingTimer() {
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
                   Janela Aberta
                 </span>
-                <p className="mt-1 text-[44px] font-bold leading-none text-foreground tracking-tight">16:8</p>
+                <p className="mt-1 text-[44px] font-bold leading-none text-foreground tracking-tight">{getFastingRatio(startHour, endHour).label}</p>
                 <p className="mt-2 text-xs text-muted-foreground">
                   Pronta para jejuar?
                 </p>

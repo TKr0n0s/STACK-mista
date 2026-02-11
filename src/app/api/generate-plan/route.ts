@@ -2,9 +2,14 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getGeminiModel } from '@/lib/gemini'
 import { aiRateLimiter } from '@/lib/rate-limit'
-import { validateAIOutput } from '@/lib/content/medical-claims'
+import {
+  getExpandedFoodsToAvoid,
+  parseFoodsToAvoid,
+  validateAIOutput,
+} from '@/lib/content/medical-claims'
 import { sanitizePromptInput } from '@/lib/content/sanitize-prompt'
 import { logger } from '@/lib/logger'
+import { getFastingRatio } from '@/lib/fasting-utils'
 
 export async function GET() {
   const supabase = await createClient()
@@ -100,8 +105,13 @@ export async function POST() {
   const sanitizedRestrictions = (profile.dietary_restrictions || [])
     .map((r: string) => sanitizePromptInput(r, 50))
     .join(', ')
+  const parsedFoodsToAvoid = parseFoodsToAvoid(profile.foods_to_avoid)
+  const expandedFoodsToAvoid = getExpandedFoodsToAvoid(parsedFoodsToAvoid)
+  const foodsToAvoidPrompt = expandedFoodsToAvoid.join(', ')
 
-  const prompt = `Voce e uma nutricionista especializada em jejum intermitente para mulheres na menopausa. Crie um plano personalizado de jejum intermitente 16:8.
+  const ratio = getFastingRatio(profile.fasting_start_hour ?? 20, profile.fasting_end_hour ?? 12)
+
+  const prompt = `Voce e uma nutricionista especializada em jejum intermitente para mulheres na menopausa. Crie um plano personalizado de jejum intermitente ${ratio.label}.
 
 Dados da paciente:
 - Nome: ${sanitizedName}
@@ -110,9 +120,11 @@ Dados da paciente:
 - Nivel de atividade: ${profile.activity_level}
 - Restricoes: ${sanitizedRestrictions || 'nenhuma'}
 - NAO come: ${sanitizedFoodsToAvoid || 'nenhuma restricao'}
+- ITENS PROIBIDOS (alergia/intolerancia): ${foodsToAvoidPrompt || 'nenhum informado'}
 - Proteina preferida: ${profile.protein_preference}
 
 REGRAS:
+- Trate "ITENS PROIBIDOS" como alergia grave. NUNCA cite, sugira ou inclua esses alimentos
 - NUNCA sugira alimentos de "NAO come"
 - Use APENAS ingredientes comuns no Brasil
 - Use o nome ${sanitizedName} ao longo do texto
@@ -139,7 +151,7 @@ REGRAS:
       // Validate output
       const validation = validateAIOutput(
         content,
-        profile.foods_to_avoid?.split(',').map((f: string) => f.trim()) || []
+        expandedFoodsToAvoid
       )
 
       if (!validation.valid) {
@@ -173,6 +185,10 @@ REGRAS:
 
         if (updateError) {
           logger.error({ updateError }, 'Failed to update ai_plan')
+          return NextResponse.json(
+            { error: 'Erro ao salvar plano' },
+            { status: 500 }
+          )
         }
       } else {
         const { error: insertError } = await supabase
@@ -181,6 +197,10 @@ REGRAS:
 
         if (insertError) {
           logger.error({ insertError }, 'Failed to insert ai_plan')
+          return NextResponse.json(
+            { error: 'Erro ao salvar plano' },
+            { status: 500 }
+          )
         }
       }
 
