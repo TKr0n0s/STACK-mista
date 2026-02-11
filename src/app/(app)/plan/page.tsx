@@ -3,16 +3,109 @@
 import { useState, useEffect, type ComponentPropsWithoutRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { Button } from '@/components/ui/button'
-import { Star, Lock, RefreshCw, Loader2, Sparkles, Clock, Utensils, Droplets, Heart, Lightbulb } from 'lucide-react'
+import { MealImage } from '@/components/meal-image'
+import {
+  Star, Lock, RefreshCw, Loader2, Sparkles, Clock, Utensils,
+  Droplets, Heart, Lightbulb, ChevronLeft, ChevronRight, Dumbbell,
+} from 'lucide-react'
 import { ProfilingModal } from '@/components/profiling-modal'
 import { getFastingRatio } from '@/lib/fasting-utils'
+import { getMealImage } from '@/lib/meal-images'
+import type { AIPlanJSON, AIPlanDay } from '@/lib/ai-plan-schema'
 
 interface PlanData {
   plan_content: string
   regenerations_today: number
 }
 
-// Map section keywords to icons and colors
+function tryParseAIPlan(content: string): AIPlanJSON | null {
+  try {
+    const parsed = JSON.parse(content)
+    if (parsed?.days?.length === 7 && parsed.summary) return parsed as AIPlanJSON
+  } catch { /* markdown fallback */ }
+  return null
+}
+
+// ─── Structured JSON day card ───────────────────────────────────────
+
+function DayCard({ day }: { day: AIPlanDay }) {
+  const meals = [
+    { key: 'breakfast', label: 'Cafe da manha', emoji: '\u2615', meal: day.meals.breakfast },
+    { key: 'lunch', label: 'Almoco', emoji: '\uD83C\uDF5C', meal: day.meals.lunch },
+    { key: 'dinner', label: 'Jantar', emoji: '\uD83C\uDF19', meal: day.meals.dinner },
+  ] as const
+
+  return (
+    <div className="space-y-3">
+      <h3 className="text-[15px] font-bold text-foreground">{day.title}</h3>
+
+      {meals.map(({ key, label, emoji, meal }) => (
+        <div key={key} className="flex items-center gap-3 rounded-2xl bg-card p-3 shadow-sm">
+          <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-muted shadow-sm">
+            <MealImage
+              src={`/meals/${getMealImage(meal.name, key)}`}
+              alt={meal.name}
+              fill
+              className="object-cover"
+              sizes="192px"
+              mealType={key}
+            />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs">{emoji}</span>
+              <span className="text-xs font-medium text-muted-foreground">{label}</span>
+            </div>
+            <p className="text-sm font-semibold text-foreground truncate">{meal.name}</p>
+            <span className="text-[11px] font-medium text-primary">{meal.kcal} kcal</span>
+          </div>
+        </div>
+      ))}
+
+      {/* Description for first meal visible */}
+      <div className="rounded-xl bg-muted/50 p-3 space-y-2">
+        {meals.map(({ key, meal }) => (
+          <p key={key} className="text-[12px] leading-relaxed text-muted-foreground">
+            <span className="font-semibold text-foreground">{meal.name}:</span> {meal.desc}
+          </p>
+        ))}
+      </div>
+
+      {/* Hydration + Exercise */}
+      <div className="grid grid-cols-2 gap-2">
+        <div className="rounded-xl bg-blue-50 dark:bg-blue-950/30 p-3">
+          <div className="flex items-center gap-1.5 mb-1">
+            <Droplets size={14} className="text-blue-500" />
+            <span className="text-xs font-semibold text-blue-700 dark:text-blue-400">Hidratacao</span>
+          </div>
+          <p className="text-[11px] text-blue-600 dark:text-blue-300">{day.hydration.water} agua + {day.hydration.tea}</p>
+          <p className="text-[10px] text-blue-500/70 mt-0.5">{day.hydration.tip}</p>
+        </div>
+        <div className="rounded-xl bg-amber-50 dark:bg-amber-950/30 p-3">
+          <div className="flex items-center gap-1.5 mb-1">
+            <Dumbbell size={14} className="text-amber-600" />
+            <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">Exercicio</span>
+          </div>
+          <p className="text-[11px] text-amber-600 dark:text-amber-300">{day.exercise.name}</p>
+          <p className="text-[10px] text-amber-500/70 mt-0.5">{day.exercise.desc}</p>
+        </div>
+      </div>
+
+      {/* Tip + Motivation */}
+      <div className="rounded-xl bg-primary/5 p-3 space-y-1">
+        <div className="flex items-center gap-1.5">
+          <Lightbulb size={13} className="text-primary" />
+          <span className="text-xs font-semibold text-primary">Dica do dia</span>
+        </div>
+        <p className="text-[12px] text-muted-foreground">{day.tip}</p>
+      </div>
+      <p className="text-center text-[12px] italic text-muted-foreground/80">{day.motivation}</p>
+    </div>
+  )
+}
+
+// ─── Markdown fallback components (old plans) ───────────────────────
+
 function getSectionStyle(text: string): { icon: typeof Clock; color: string; bg: string } | null {
   const lower = text.toLowerCase()
   if (lower.includes('horário') || lower.includes('horario') || lower.includes('janela') || lower.includes('jejum'))
@@ -28,21 +121,16 @@ function getSectionStyle(text: string): { icon: typeof Clock; color: string; bg:
   return null
 }
 
-// Clean numbered prefixes like "1." "2." from headings
 function cleanHeading(text: string): string {
   return text.replace(/^\d+\.\s*/, '')
 }
 
-// Custom markdown components for styled rendering
 const markdownComponents = {
-  h1: ({ children, ...props }: ComponentPropsWithoutRef<'h1'>) => {
-    const text = String(children)
-    return (
-      <div className="mb-4 mt-2" {...props}>
-        <h2 className="text-lg font-bold text-foreground">{cleanHeading(text)}</h2>
-      </div>
-    )
-  },
+  h1: ({ children, ...props }: ComponentPropsWithoutRef<'h1'>) => (
+    <div className="mb-4 mt-2" {...props}>
+      <h2 className="text-lg font-bold text-foreground">{cleanHeading(String(children))}</h2>
+    </div>
+  ),
   h2: ({ children, ...props }: ComponentPropsWithoutRef<'h2'>) => {
     const text = String(children)
     const style = getSectionStyle(text)
@@ -58,18 +146,13 @@ const markdownComponents = {
       </div>
     )
   },
-  h3: ({ children, ...props }: ComponentPropsWithoutRef<'h3'>) => {
-    const text = String(children)
-    return (
-      <p className="mt-4 mb-1.5 text-sm font-bold text-foreground" {...props}>
-        {cleanHeading(text)}
-      </p>
-    )
-  },
-  p: ({ children, ...props }: ComponentPropsWithoutRef<'p'>) => (
-    <p className="text-[13px] leading-relaxed text-muted-foreground mb-2" {...props}>
-      {children}
+  h3: ({ children, ...props }: ComponentPropsWithoutRef<'h3'>) => (
+    <p className="mt-4 mb-1.5 text-sm font-bold text-foreground" {...props}>
+      {cleanHeading(String(children))}
     </p>
+  ),
+  p: ({ children, ...props }: ComponentPropsWithoutRef<'p'>) => (
+    <p className="text-[13px] leading-relaxed text-muted-foreground mb-2" {...props}>{children}</p>
   ),
   ul: ({ children, ...props }: ComponentPropsWithoutRef<'ul'>) => (
     <ul className="space-y-1.5 mb-3" {...props}>{children}</ul>
@@ -89,6 +172,8 @@ const markdownComponents = {
   hr: () => <div className="my-4 h-px bg-border/60" />,
 }
 
+// ─── Main page ──────────────────────────────────────────────────────
+
 export default function PlanPage() {
   const [profileCompleted, setProfileCompleted] = useState(false)
   const [profilingOpen, setProfilingOpen] = useState(false)
@@ -98,6 +183,7 @@ export default function PlanPage() {
   const [error, setError] = useState('')
   const [fastingStartHour, setFastingStartHour] = useState(20)
   const [fastingEndHour, setFastingEndHour] = useState(12)
+  const [selectedDay, setSelectedDay] = useState(0)
 
   useEffect(() => {
     loadProfile()
@@ -139,12 +225,11 @@ export default function PlanPage() {
     setGenerating(true)
     setError('')
     try {
-      const res = await fetch('/api/generate-plan', {
-        method: 'POST',
-      })
+      const res = await fetch('/api/generate-plan', { method: 'POST' })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Erro ao gerar plano')
       setPlan(data)
+      setSelectedDay(0)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro inesperado')
     } finally {
@@ -165,6 +250,8 @@ export default function PlanPage() {
     )
   }
 
+  const aiPlan = plan ? tryParseAIPlan(plan.plan_content) : null
+
   return (
     <div className="space-y-5 page-enter">
       <div className="relative">
@@ -183,9 +270,7 @@ export default function PlanPage() {
                 <Lock size={28} className="text-white" />
               </div>
               <div className="space-y-2">
-                <h2 className="text-lg font-bold">
-                  Complete seu perfil
-                </h2>
+                <h2 className="text-lg font-bold">Complete seu perfil</h2>
                 <p className="text-sm text-muted-foreground max-w-[280px]">
                   Preencha seus dados e nossa IA criará um plano
                   de jejum 100% personalizado para você.
@@ -216,12 +301,9 @@ export default function PlanPage() {
               <Sparkles className="absolute -right-1 -top-1 h-5 w-5 text-amber-400 animate-pulse" />
             </div>
             <div className="space-y-1">
-              <p className="text-sm font-semibold text-foreground">
-                Gerando seu plano...
-              </p>
+              <p className="text-sm font-semibold text-foreground">Gerando seu plano...</p>
               <p className="text-xs text-muted-foreground">
-                Nossa IA está analisando seu perfil e criando
-                recomendações personalizadas.
+                Nossa IA está analisando seu perfil e criando recomendações personalizadas.
               </p>
             </div>
           </div>
@@ -247,12 +329,73 @@ export default function PlanPage() {
             </div>
           </div>
 
-          {/* Plan content — styled markdown */}
-          <div className="rounded-2xl bg-card p-5 shadow-sm">
-            <ReactMarkdown components={markdownComponents}>
-              {plan.plan_content}
-            </ReactMarkdown>
-          </div>
+          {aiPlan ? (
+            <>
+              {/* Summary */}
+              <div className="rounded-2xl bg-card p-4 shadow-sm">
+                <p className="text-[13px] leading-relaxed text-muted-foreground">{aiPlan.summary}</p>
+                {aiPlan.tips.length > 0 && (
+                  <ul className="mt-2 space-y-1">
+                    {aiPlan.tips.map((tip, i) => (
+                      <li key={i} className="flex items-start gap-2 text-[12px] text-muted-foreground">
+                        <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/40" />
+                        <span>{tip}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              {/* Day selector */}
+              <div className="flex items-center justify-between">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  disabled={selectedDay === 0}
+                  onClick={() => setSelectedDay((d) => d - 1)}
+                >
+                  <ChevronLeft size={18} />
+                </Button>
+                <div className="flex gap-1.5">
+                  {aiPlan.days.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setSelectedDay(i)}
+                      className={`h-8 w-8 rounded-full text-xs font-semibold transition-all ${
+                        i === selectedDay
+                          ? 'gradient-primary text-white shadow-sm'
+                          : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                      }`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  disabled={selectedDay === 6}
+                  onClick={() => setSelectedDay((d) => d + 1)}
+                >
+                  <ChevronRight size={18} />
+                </Button>
+              </div>
+
+              {/* Day content */}
+              <div className="rounded-2xl bg-card p-4 shadow-sm">
+                <DayCard day={aiPlan.days[selectedDay]} />
+              </div>
+            </>
+          ) : (
+            /* Markdown fallback for old plans */
+            <div className="rounded-2xl bg-card p-5 shadow-sm">
+              <ReactMarkdown components={markdownComponents}>
+                {plan.plan_content}
+              </ReactMarkdown>
+            </div>
+          )}
 
           {/* Regenerate */}
           {plan.regenerations_today < 3 && (

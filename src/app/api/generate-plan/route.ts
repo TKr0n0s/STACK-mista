@@ -11,6 +11,7 @@ import {
 import { sanitizePromptInput } from '@/lib/content/sanitize-prompt'
 import { logger } from '@/lib/logger'
 import { getFastingRatio } from '@/lib/fasting-utils'
+import { aiPlanSchema, stripCodeFences } from '@/lib/ai-plan-schema'
 
 export async function GET() {
   const supabase = await createClient()
@@ -119,7 +120,7 @@ export async function POST() {
 
   const ratio = getFastingRatio(profile.fasting_start_hour ?? 20, profile.fasting_end_hour ?? 12)
 
-  const prompt = `Voce e uma nutricionista especializada em jejum intermitente para mulheres na menopausa. Crie um plano personalizado de jejum intermitente ${ratio.label}.
+  const prompt = `Voce e uma nutricionista especializada em jejum intermitente para mulheres na menopausa. Crie um plano personalizado de jejum intermitente ${ratio.label} com 7 dias.
 
 Dados da paciente:
 - Nome: ${sanitizedName}
@@ -136,10 +137,31 @@ REGRAS:
 - NUNCA sugira alimentos de "NAO come"
 - PROTEINA: Use SOMENTE ${profile.protein_preference || 'a proteina escolhida'} como fonte proteica. NUNCA use ${excludedProteinsPrompt || 'outras proteinas'}
 - Use APENAS ingredientes comuns no Brasil
-- Use o nome ${sanitizedName} ao longo do texto
+- Use o nome ${sanitizedName} nos textos motivacionais
 - Tom acolhedor e motivador. Portugues brasileiro.
 - NAO faca claims medicos ("cura", "garante perda de peso", "autofagia", "cetose")
-- Formato: markdown estruturado`
+
+FORMATO: Responda APENAS com JSON valido. Sem markdown, sem explicacoes, sem texto antes ou depois. Estrutura exata:
+{
+  "summary": "Resumo motivacional personalizado (2-3 frases)",
+  "tips": ["dica 1", "dica 2", "dica 3"],
+  "days": [
+    {
+      "day": 1,
+      "title": "Titulo motivacional do dia",
+      "meals": {
+        "breakfast": { "name": "Nome da refeicao", "desc": "Descricao detalhada com ingredientes", "kcal": 380 },
+        "lunch": { "name": "Nome da refeicao", "desc": "Descricao detalhada com ingredientes", "kcal": 420 },
+        "dinner": { "name": "Nome da refeicao", "desc": "Descricao detalhada com ingredientes", "kcal": 320 }
+      },
+      "hydration": { "water": "2L", "tea": "Cha verde", "tip": "Dica de hidratacao" },
+      "exercise": { "name": "Nome do exercicio", "desc": "Descricao do exercicio" },
+      "tip": "Dica do dia",
+      "motivation": "Frase motivacional personalizada"
+    }
+  ]
+}
+IMPORTANTE: O array "days" deve ter EXATAMENTE 7 objetos (day 1 a 7). Cada refeicao deve ter kcal realista. Varie as refeicoes entre os dias.`
 
   let attempts = 0
   const maxAttempts = 3
@@ -149,15 +171,27 @@ REGRAS:
     attempts++
     try {
       const result = await getGeminiModel().generateContent(prompt)
-      const content = result.response.text()
+      const rawContent = result.response.text()
 
-      if (!content || content.trim().length < 50) {
+      if (!rawContent || rawContent.trim().length < 50) {
         lastError = 'empty_response'
         logger.warn({ attempt: attempts }, 'Gemini returned empty/short response')
         continue
       }
 
-      // Validate output (checks foods to avoid + excluded proteins)
+      // Parse and validate JSON structure with Zod
+      let content: string
+      try {
+        const jsonStr = stripCodeFences(rawContent)
+        const parsed = aiPlanSchema.parse(JSON.parse(jsonStr))
+        content = JSON.stringify(parsed)
+      } catch (parseErr) {
+        lastError = `json_validation_failed: ${parseErr instanceof Error ? parseErr.message : 'invalid JSON'}`
+        logger.warn({ attempt: attempts, error: lastError }, 'AI output JSON/Zod validation failed')
+        continue
+      }
+
+      // Validate food/protein restrictions on the serialized content
       const validation = validateAIOutput(
         content,
         allFoodsToValidate
@@ -167,7 +201,7 @@ REGRAS:
         lastError = `validation_failed: ${validation.issues.join(', ')}`
         logger.warn(
           { issues: validation.issues, attempt: attempts },
-          'AI output validation failed'
+          'AI output food validation failed'
         )
         continue
       }

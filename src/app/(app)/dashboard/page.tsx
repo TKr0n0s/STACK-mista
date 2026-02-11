@@ -13,6 +13,8 @@ import type { Week1Data, Week1Day } from '@/lib/types'
 import { initializeReminders, isNotificationsEnabled } from '@/lib/notifications'
 import { sanitizeDayForFoodSafety } from '@/lib/content/day-safety'
 import { getFastingRatio } from '@/lib/fasting-utils'
+import { getMealImage } from '@/lib/meal-images'
+import type { AIPlanJSON } from '@/lib/ai-plan-schema'
 
 export default function DashboardPage() {
   const [day, setDay] = useState<Week1Day | null>(null)
@@ -60,16 +62,51 @@ export default function DashboardPage() {
 
       setCurrentWeek(weekNumber)
 
-      // Load appropriate week data (weeks 5+ use generic plan)
-      const weekFile = weekNumber > 4 ? 'week-generic.json' : `week${weekNumber}.json`
-      const weekRes = await fetch(`/data/${weekFile}`)
+      // Try AI plan first — if available and valid JSON, use its meals
+      let usedAIPlan = false
+      try {
+        const planRes = await fetch('/api/generate-plan')
+        if (planRes.ok) {
+          const planData = await planRes.json()
+          if (planData.plan_content) {
+            const aiPlan: AIPlanJSON = JSON.parse(planData.plan_content)
+            const aiDay = aiPlan.days?.[(programDay - 1) % aiPlan.days.length]
+            if (aiDay) {
+              const mappedDay: Week1Day = {
+                day: programDay,
+                title: aiDay.title,
+                meals: {
+                  breakfast: { name: aiDay.meals.breakfast.name, desc: aiDay.meals.breakfast.desc, image: getMealImage(aiDay.meals.breakfast.name, 'breakfast'), kcal: aiDay.meals.breakfast.kcal },
+                  lunch: { name: aiDay.meals.lunch.name, desc: aiDay.meals.lunch.desc, image: getMealImage(aiDay.meals.lunch.name, 'lunch'), kcal: aiDay.meals.lunch.kcal },
+                  dinner: { name: aiDay.meals.dinner.name, desc: aiDay.meals.dinner.desc, image: getMealImage(aiDay.meals.dinner.name, 'dinner'), kcal: aiDay.meals.dinner.kcal },
+                },
+                hydration: aiDay.hydration,
+                exercise: aiDay.exercise,
+                tip: aiDay.tip,
+                did_you_know: aiDay.motivation,
+                motivation: aiDay.motivation,
+              }
+              setDay(mappedDay)
+              usedAIPlan = true
+            }
+          }
+        }
+      } catch {
+        // AI plan not available or not JSON — fall through to static
+      }
 
-      if (weekRes.ok) {
-        const data: Week1Data = await weekRes.json()
-        const selectedDay = data.days[programDay - 1] || data.days[0]
-        setDay(sanitizeDayForFoodSafety(selectedDay, foodsToAvoidRaw))
-      } else {
-        throw new Error('Failed to load week data')
+      // Fallback: load static week data
+      if (!usedAIPlan) {
+        const weekFile = weekNumber > 4 ? 'week-generic.json' : `week${weekNumber}.json`
+        const weekRes = await fetch(`/data/${weekFile}`)
+
+        if (weekRes.ok) {
+          const data: Week1Data = await weekRes.json()
+          const selectedDay = data.days[programDay - 1] || data.days[0]
+          setDay(sanitizeDayForFoodSafety(selectedDay, foodsToAvoidRaw))
+        } else {
+          throw new Error('Failed to load week data')
+        }
       }
     } catch {
       setFetchError(true)
