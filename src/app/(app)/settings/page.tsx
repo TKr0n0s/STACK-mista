@@ -90,6 +90,10 @@ export default function SettingsPage() {
   const [fastingStart, setFastingStart] = useState('20')
   const [fastingEnd, setFastingEnd] = useState('12')
 
+  // Feedback state
+  const [saveError, setSaveError] = useState('')
+  const [saveSuccess, setSaveSuccess] = useState('')
+
   // Notification state
   const [notificationsOn, setNotificationsOn] = useState(false)
   const [notifSupported, setNotifSupported] = useState(true)
@@ -178,6 +182,8 @@ export default function SettingsPage() {
   }
 
   async function saveProfile() {
+    setSaveError('')
+    setSaveSuccess('')
     setSaving(true)
     try {
       const res = await fetch('/api/user/profile', {
@@ -203,42 +209,70 @@ export default function SettingsPage() {
         // Regenerate AI plan with new data
         setRegeneratingPlan(true)
         try {
-          await fetch('/api/generate-plan', { method: 'POST' })
+          const planRes = await fetch('/api/generate-plan', { method: 'POST' })
+          if (!planRes.ok) {
+            const planErr = await planRes.json().catch(() => null)
+            setSaveError(planErr?.error || 'Perfil salvo, mas erro ao gerar novo plano.')
+          } else {
+            setSaveSuccess('Perfil salvo e plano atualizado!')
+            setTimeout(() => setSaveSuccess(''), 3000)
+          }
         } catch {
-          // Plan regeneration is optional
+          setSaveError('Perfil salvo, mas erro ao gerar plano. Tente novamente mais tarde.')
         } finally {
           setRegeneratingPlan(false)
         }
       } else {
-        alert('Erro ao salvar. Tente novamente.')
+        const errData = await res.json().catch(() => null)
+        setSaveError(errData?.error || 'Erro ao salvar perfil. Tente novamente.')
       }
     } catch {
-      alert('Erro ao salvar. Tente novamente.')
+      setSaveError('Erro de conexão. Verifique sua internet e tente novamente.')
     } finally {
       setSaving(false)
     }
   }
 
   async function saveFasting() {
+    setSaveError('')
+    setSaveSuccess('')
+
+    const startNum = Number(fastingStart)
+    const endNum = Number(fastingEnd)
+
+    if (!Number.isInteger(startNum) || startNum < 0 || startNum > 23) {
+      setSaveError('Hora de início deve ser um número entre 0 e 23.')
+      return
+    }
+    if (!Number.isInteger(endNum) || endNum < 0 || endNum > 23) {
+      setSaveError('Hora de fim deve ser um número entre 0 e 23.')
+      return
+    }
+
     setSaving(true)
     try {
       const res = await fetch('/api/user/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          fasting_start_hour: Number(fastingStart),
-          fasting_end_hour: Number(fastingEnd),
+          fasting_start_hour: startNum,
+          fasting_end_hour: endNum,
         }),
       })
       if (res.ok) {
         const data = await res.json()
         setProfile((prev) => prev ? { ...prev, ...data } : prev)
-        setFastingOpen(false)
+        setSaveSuccess('Horário salvo com sucesso!')
+        setTimeout(() => {
+          setFastingOpen(false)
+          setSaveSuccess('')
+        }, 1500)
       } else {
-        alert('Erro ao salvar. Tente novamente.')
+        const errData = await res.json().catch(() => null)
+        setSaveError(errData?.error || 'Erro ao salvar. Tente novamente.')
       }
     } catch {
-      alert('Erro ao salvar. Tente novamente.')
+      setSaveError('Erro de conexão. Verifique sua internet e tente novamente.')
     } finally {
       setSaving(false)
     }
@@ -360,7 +394,10 @@ export default function SettingsPage() {
       </p>
 
       {/* Edit Profile Dialog */}
-      <Dialog open={editProfileOpen} onOpenChange={setEditProfileOpen}>
+      <Dialog open={editProfileOpen} onOpenChange={(open) => {
+        setEditProfileOpen(open)
+        if (open) { setSaveError(''); setSaveSuccess('') }
+      }}>
         <DialogContent className="max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Editar Perfil</DialogTitle>
@@ -486,6 +523,12 @@ export default function SettingsPage() {
               </div>
             </div>
 
+            {saveError && (
+              <p className="text-center text-sm text-destructive">{saveError}</p>
+            )}
+            {saveSuccess && (
+              <p className="text-center text-sm text-green-600">{saveSuccess}</p>
+            )}
             <Button
               className="w-full rounded-xl"
               onClick={saveProfile}
@@ -510,7 +553,10 @@ export default function SettingsPage() {
       </Dialog>
 
       {/* Fasting Schedule Dialog */}
-      <Dialog open={fastingOpen} onOpenChange={setFastingOpen}>
+      <Dialog open={fastingOpen} onOpenChange={(open) => {
+        setFastingOpen(open)
+        if (open) { setSaveError(''); setSaveSuccess('') }
+      }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Horário do Jejum</DialogTitle>
@@ -554,6 +600,12 @@ export default function SettingsPage() {
                 Jejum de {fastingStart}h até {fastingEnd}h do dia seguinte
               </p>
             </div>
+            {saveError && (
+              <p className="text-center text-sm text-destructive">{saveError}</p>
+            )}
+            {saveSuccess && (
+              <p className="text-center text-sm text-green-600">{saveSuccess}</p>
+            )}
             <Button
               className="w-full rounded-xl"
               onClick={saveFasting}

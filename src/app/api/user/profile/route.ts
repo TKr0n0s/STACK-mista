@@ -15,6 +15,7 @@ const profileUpdateSchema = z.object({
   fasting_start_hour: z.number().int().min(0).max(23).optional(),
   fasting_end_hour: z.number().int().min(0).max(23).optional(),
   profile_completed: z.boolean().optional(),
+  program_start_date: z.string().datetime().optional(),
 })
 
 export async function GET() {
@@ -60,12 +61,12 @@ export async function PUT(request: NextRequest) {
     )
   }
 
-  // First, try to get existing user to preserve email
+  // Check if user row already exists (created during auth/email-login)
   const { data: existingUser } = await supabase
     .from('users')
-    .select('email')
+    .select('id, email')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
 
   const userEmail = existingUser?.email || user.email || ''
 
@@ -77,19 +78,35 @@ export async function PUT(request: NextRequest) {
     )
   }
 
-  // Use upsert to handle user creation or update (A6)
-  const { data, error } = await supabase
-    .from('users')
-    .upsert(
-      {
+  let data, error
+
+  if (existingUser) {
+    // User exists: UPDATE only provided fields (no NOT NULL issues)
+    const result = await supabase
+      .from('users')
+      .update(parsed.data)
+      .eq('id', user.id)
+      .select()
+      .single()
+    data = result.data
+    error = result.error
+  } else {
+    // User does not exist (edge case): INSERT with all required fields
+    const result = await supabase
+      .from('users')
+      .insert({
         id: user.id,
         email: userEmail,
+        name: parsed.data.name || '',
+        fasting_start_hour: parsed.data.fasting_start_hour ?? 20,
+        fasting_end_hour: parsed.data.fasting_end_hour ?? 12,
         ...parsed.data,
-      },
-      { onConflict: 'id' }
-    )
-    .select()
-    .single()
+      })
+      .select()
+      .single()
+    data = result.data
+    error = result.error
+  }
 
   if (error) {
     logger.error({ userId: user.id, error }, 'Profile update error')
