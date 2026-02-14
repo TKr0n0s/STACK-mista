@@ -50,18 +50,85 @@ function sanitizeAIPlanDay(day: AIPlanDay, forbidden: string[]): AIPlanDay {
 
 // ─── Structured JSON day card ───────────────────────────────────────
 
-function DayCard({ day }: { day: AIPlanDay }) {
+/**
+ * Calculate suggested meal times based on the eating window.
+ * Distributes 3 meals evenly across the eating window.
+ */
+function getMealTimes(fastingEndHour: number, fastingStartHour: number) {
+  const eatingHours = ((fastingStartHour - fastingEndHour) + 24) % 24
+  if (eatingHours === 0) return { breakfast: '', lunch: '', dinner: '' }
+
+  const pad = (h: number) => {
+    const hour = h % 24
+    return `${String(Math.floor(hour)).padStart(2, '0')}:${h % 1 >= 0.5 ? '30' : '00'}`
+  }
+
+  // First meal: 30min after window opens. Last meal: 30min before window closes.
+  const usable = eatingHours - 1 // 30min margin each side
+  const gap = usable / 2
+
+  return {
+    breakfast: pad(fastingEndHour + 0.5),
+    lunch: pad(fastingEndHour + 0.5 + gap),
+    dinner: pad(fastingEndHour + 0.5 + gap * 2),
+  }
+}
+
+function DayCard({ day, fastingStartHour, fastingEndHour, dayNumber, totalDays }: {
+  day: AIPlanDay
+  fastingStartHour: number
+  fastingEndHour: number
+  dayNumber: number
+  totalDays: number
+}) {
+  const times = getMealTimes(fastingEndHour, fastingStartHour)
+  const ratio = getFastingRatio(fastingStartHour, fastingEndHour)
+  const totalKcal = day.meals.breakfast.kcal + day.meals.lunch.kcal + day.meals.dinner.kcal
+
   const meals = [
-    { key: 'breakfast', label: 'Cafe da manha', emoji: '\u2615', meal: day.meals.breakfast },
-    { key: 'lunch', label: 'Almoco', emoji: '\uD83C\uDF5C', meal: day.meals.lunch },
-    { key: 'dinner', label: 'Jantar', emoji: '\uD83C\uDF19', meal: day.meals.dinner },
+    { key: 'breakfast', label: 'Cafe da manha', emoji: '\u2615', meal: day.meals.breakfast, time: times.breakfast },
+    { key: 'lunch', label: 'Almoco', emoji: '\uD83C\uDF5C', meal: day.meals.lunch, time: times.lunch },
+    { key: 'dinner', label: 'Jantar', emoji: '\uD83C\uDF19', meal: day.meals.dinner, time: times.dinner },
   ] as const
 
   return (
     <div className="space-y-3">
-      <h3 className="text-[15px] font-bold text-foreground">{day.title}</h3>
+      {/* Day header with context */}
+      <div className="flex items-center justify-between">
+        <h3 className="text-[15px] font-bold text-foreground">{day.title}</h3>
+        <span className="text-[11px] font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+          Dia {dayNumber}/{totalDays}
+        </span>
+      </div>
 
-      {meals.map(({ key, label, emoji, meal }) => {
+      {/* Schedule card */}
+      <div className="rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 p-3 space-y-2">
+        <div className="flex items-center gap-1.5">
+          <Clock size={13} className="text-primary" />
+          <span className="text-xs font-semibold text-primary">Seu cronograma hoje</span>
+        </div>
+        <div className="flex items-center justify-between text-[11px]">
+          <div className="text-center">
+            <p className="font-bold text-foreground">{String(fastingEndHour).padStart(2, '0')}:00</p>
+            <p className="text-muted-foreground">Janela abre</p>
+          </div>
+          <div className="flex-1 mx-2 relative">
+            <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+              <div className="h-full rounded-full bg-primary/60" style={{ width: `${(ratio.eating / 24) * 100}%` }} />
+            </div>
+            <p className="text-center text-[10px] text-muted-foreground mt-0.5">
+              {ratio.eating}h para comer · {totalKcal} kcal
+            </p>
+          </div>
+          <div className="text-center">
+            <p className="font-bold text-foreground">{String(fastingStartHour).padStart(2, '0')}:00</p>
+            <p className="text-muted-foreground">Jejum inicia</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Meals with times */}
+      {meals.map(({ key, label, emoji, meal, time }) => {
         const imgSrc = meal.image_url || `/meals/${getMealImage(meal.name, key)}`
         return (
         <div key={key} className="flex items-center gap-3 rounded-2xl bg-card p-3 shadow-sm">
@@ -79,6 +146,11 @@ function DayCard({ day }: { day: AIPlanDay }) {
             <div className="flex items-center gap-1.5">
               <span className="text-xs">{emoji}</span>
               <span className="text-xs font-medium text-muted-foreground">{label}</span>
+              {time && (
+                <span className="text-[10px] font-medium text-primary/70 bg-primary/10 px-1.5 py-0.5 rounded-full ml-auto">
+                  ~{time}
+                </span>
+              )}
             </div>
             <p className="text-sm font-semibold text-foreground truncate">{meal.name}</p>
             <span className="text-[11px] font-medium text-primary">{meal.kcal} kcal</span>
@@ -87,7 +159,7 @@ function DayCard({ day }: { day: AIPlanDay }) {
         )
       })}
 
-      {/* Description for first meal visible */}
+      {/* Meal descriptions */}
       <div className="rounded-xl bg-muted/50 p-3 space-y-2">
         {meals.map(({ key, meal }) => (
           <p key={key} className="text-[12px] leading-relaxed text-muted-foreground">
@@ -229,6 +301,16 @@ export default function PlanPage() {
           protein_preference: data.protein_preference || null,
         }))
 
+        // Default to current program day (same logic as dashboard)
+        const programStart = data.program_start_date || data.created_at
+        if (programStart) {
+          const daysSinceStart = Math.floor(
+            (Date.now() - new Date(programStart).getTime()) / 86400000
+          )
+          const programDay = (daysSinceStart % 7) // 0-indexed for selectedDay
+          setSelectedDay(Math.min(Math.max(programDay, 0), 6))
+        }
+
         if (data.profile_completed) {
           await loadPlan()
         }
@@ -266,7 +348,6 @@ export default function PlanPage() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Erro ao gerar plano')
       setPlan(data)
-      setSelectedDay(0)
       // Enrich plan with Pexels images in background (best-effort)
       fetch('/api/enrich-images', { method: 'POST' }).catch(() => {})
     } catch (err) {
@@ -424,7 +505,13 @@ export default function PlanPage() {
 
               {/* Day content */}
               <div className="rounded-2xl bg-card p-4 shadow-sm">
-                <DayCard day={sanitizeAIPlanDay(aiPlan.days[selectedDay], forbiddenTerms)} />
+                <DayCard
+                  day={sanitizeAIPlanDay(aiPlan.days[selectedDay], forbiddenTerms)}
+                  fastingStartHour={fastingStartHour}
+                  fastingEndHour={fastingEndHour}
+                  dayNumber={selectedDay + 1}
+                  totalDays={aiPlan.days.length}
+                />
               </div>
             </>
           ) : (
