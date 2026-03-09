@@ -182,7 +182,9 @@ export default function SettingsPage() {
     try {
       const res = await fetch('/api/user/delete', { method: 'DELETE' })
       if (res.ok) {
-        window.location.href = '/login'
+        // Clear ALL local data before redirect (LGPD compliance)
+        const { logout } = await import('@/lib/auth/logout')
+        await logout()
       } else {
         alert('Erro ao excluir conta. Tente novamente.')
       }
