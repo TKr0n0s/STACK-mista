@@ -70,8 +70,8 @@ export default function DayDetailPage() {
               }
             }
           }
-        } catch {
-          // AI plan not available — fall through to static
+        } catch (err) {
+          console.error('AI plan load failed:', err)
         }
 
         // Fallback: load static week data
@@ -82,8 +82,8 @@ export default function DayDetailPage() {
           const found = data.days.find((d) => d.day === dayNumber)
           setDay(found ? sanitizeDayWithProfile(found, userFoodProfile) : null)
         }
-      } catch {
-        // offline fallback
+      } catch (err) {
+        console.error('Day page load failed:', err)
       } finally {
         setLoading(false)
       }

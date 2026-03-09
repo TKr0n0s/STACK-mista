@@ -73,11 +73,12 @@ const WaterDrop = memo(function WaterDrop({
 
 export function WaterTracker() {
   const { waterCups, setWaterCups } = useStore()
-  const userId = useUserId()
+  const { userId, isLoading: userIdLoading } = useUserId()
   const [showCelebration, setShowCelebration] = useState(false)
   const [justAdded, setJustAdded] = useState(false)
 
   useEffect(() => {
+    if (userIdLoading || userId === 'anonymous') return
     async function load() {
       try {
         const log = await db.waterLogs
@@ -91,7 +92,7 @@ export function WaterTracker() {
     }
     load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [userId, userIdLoading])
 
   const setWaterToLevel = useCallback(async (level: number) => {
     // Only allow increasing water (can't "unfill" a cup)
@@ -231,6 +232,9 @@ export function WaterTracker() {
               Meta atingida!
             </span>
           )}
+          <span role="status" aria-live="polite" className="sr-only">
+            {waterCups} de {WATER_TARGET} copos de água
+          </span>
         </div>
 
         {/* Progress bar */}

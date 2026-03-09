@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { kiwifyWebhookLimiter } from '@/lib/rate-limit'
+import { verifyKiwifyWebhook } from '@/lib/kiwify/verify'
 import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
@@ -16,59 +17,33 @@ export async function POST(request: NextRequest) {
   // Read raw body
   const rawBody = await request.text()
 
-  // Log ALL headers for debugging (which ones does Kiwify actually send?)
-  const headerEntries: Record<string, string> = {}
-  request.headers.forEach((value, key) => {
-    if (!key.startsWith('x-vercel') && key !== 'cookie') {
-      headerEntries[key] = key.toLowerCase().includes('auth') ? '***' : value
-    }
-  })
-  logger.info({ headers: headerEntries, bodyLength: rawBody.length }, 'Kiwify webhook received - headers')
-
-  // Log raw body (truncated for safety)
-  logger.info(
-    { rawBody: rawBody.slice(0, 1000) },
-    'Kiwify webhook received - body'
-  )
-
   // Parse JSON
   let payload: Record<string, unknown>
   try {
     payload = JSON.parse(rawBody)
   } catch {
-    logger.warn({ ip, rawBody: rawBody.slice(0, 200) }, 'Invalid JSON in Kiwify webhook')
+    logger.warn({ ip }, 'Invalid JSON in Kiwify webhook')
     return NextResponse.json({}, { status: 400 })
   }
 
-  // Log parsed payload top-level keys
-  logger.info(
-    { keys: Object.keys(payload), order_status: payload.order_status, order_id: payload.order_id },
-    'Kiwify webhook parsed - top-level keys'
-  )
-
-  // Token verification - LOG but ACCEPT ALL for now (we need to see what Kiwify actually sends)
+  // Webhook signature verification
   const signature = request.headers.get('signature')
   const secret = process.env.KIWIFY_WEBHOOK_SECRET
   const bodyToken = (payload.token || payload.Token || null) as string | null
 
-  logger.info(
-    {
-      hasSecret: !!secret,
-      hasSignatureHeader: !!signature,
-      hasBodyToken: !!bodyToken,
-      signatureHeader: signature?.slice(0, 10),
-      bodyTokenValue: bodyToken?.slice(0, 5),
-    },
-    'Kiwify webhook token check (accepting all for debugging)'
-  )
+  if (secret) {
+    const isValid = verifyKiwifyWebhook(rawBody, signature, secret, bodyToken)
+    if (!isValid) {
+      logger.warn({ ip, hasSignature: !!signature, hasBodyToken: !!bodyToken }, 'Kiwify webhook signature verification FAILED')
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+    }
+    logger.info({}, 'Kiwify webhook signature verified')
+  } else {
+    logger.warn({}, 'KIWIFY_WEBHOOK_SECRET not set — accepting without verification (configure in production!)')
+  }
 
   try {
-    // Log the order_status value to understand what Kiwify sends
     const orderStatus = payload.order_status as string | undefined
-    logger.info(
-      { order_status: orderStatus, order_id: payload.order_id },
-      'Kiwify webhook order_status check'
-    )
 
     // Accept "paid" (confirmed from Kiwify docs) plus defensive alternatives
     if (orderStatus !== 'paid' && orderStatus !== 'approved' && orderStatus !== 'completed') {
@@ -79,7 +54,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true })
     }
 
-    // Try multiple possible email paths (we're not 100% sure of Kiwify's structure)
+    // Extract customer data from multiple possible paths
     const customerObj = (payload.Customer || payload.customer) as Record<string, unknown> | undefined
     const email = (
       customerObj?.email as string ||
@@ -90,23 +65,9 @@ export async function POST(request: NextRequest) {
     const name = (customerObj?.full_name || customerObj?.name || '') as string
     const orderId = (payload.order_id || payload.orderId || payload.id || '') as string
 
-    logger.info(
-      {
-        email: email ? email.slice(0, 3) + '***@' + email.split('@')[1] : 'EMPTY',
-        name: name ? name.slice(0, 3) + '***' : 'EMPTY',
-        orderId: orderId || 'EMPTY',
-        customerKeys: customerObj ? Object.keys(customerObj) : 'NO_CUSTOMER_OBJ',
-      },
-      'Kiwify webhook customer data extracted'
-    )
-
     if (!email || !orderId) {
       logger.error(
-        {
-          hasEmail: !!email,
-          hasOrderId: !!orderId,
-          payloadKeys: Object.keys(payload),
-        },
+        { hasEmail: !!email, hasOrderId: !!orderId },
         'Kiwify webhook missing email or orderId'
       )
       return NextResponse.json({ error: 'Missing data' }, { status: 400 })

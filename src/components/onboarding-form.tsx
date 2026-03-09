@@ -57,7 +57,7 @@ export function OnboardingForm() {
   // Load saved progress on mount
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('onboarding-progress')
+      const saved = sessionStorage.getItem('onboarding-progress')
       if (saved) {
         const data = JSON.parse(saved)
         if (data.step) setStep(data.step)
@@ -81,7 +81,7 @@ export function OnboardingForm() {
   // Save progress to localStorage
   function saveProgress(currentStep: number) {
     try {
-      localStorage.setItem(
+      sessionStorage.setItem(
         'onboarding-progress',
         JSON.stringify({
           step: currentStep,
@@ -104,7 +104,7 @@ export function OnboardingForm() {
   // Clear saved progress from localStorage
   function clearProgress() {
     try {
-      localStorage.removeItem('onboarding-progress')
+      sessionStorage.removeItem('onboarding-progress')
     } catch {}
   }
 

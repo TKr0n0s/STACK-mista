@@ -9,9 +9,10 @@ import { getTodayKey } from '@/lib/date-utils'
 export function DailyStreak() {
   const [streak, setStreak] = useState(0)
   const [todayDone, setTodayDone] = useState(false)
-  const userId = useUserId()
+  const { userId, isLoading: userIdLoading } = useUserId()
 
   useEffect(() => {
+    if (userIdLoading || userId === 'anonymous') return
     async function calculateStreak() {
       try {
         const logs = await db.fastingLogs
@@ -61,7 +62,7 @@ export function DailyStreak() {
     }
 
     calculateStreak()
-  }, [userId])
+  }, [userId, userIdLoading])
 
   const milestones = [3, 7, 14, 21, 30]
   const nextMilestone = milestones.find(m => m > streak) ?? streak + 7

@@ -61,7 +61,7 @@ function StatCard({
 }
 
 export default function ProgressPage() {
-  const userId = useUserId()
+  const { userId, isLoading: userIdLoading } = useUserId()
   const [stats, setStats] = useState({
     daysCompleted: 0,
     streak: 0,
@@ -96,7 +96,7 @@ export default function ProgressPage() {
   }, [])
 
   useEffect(() => {
-    if (!userId || userId === 'anonymous') return
+    if (userIdLoading || !userId || userId === 'anonymous') return
 
     async function loadStats() {
       try {
@@ -182,7 +182,7 @@ export default function ProgressPage() {
       }
     }
     loadStats()
-  }, [today, userId])
+  }, [today, userId, userIdLoading])
 
   const progressPercent = (stats.daysCompleted / 7) * 100
   const weekDates = getWeekDates()

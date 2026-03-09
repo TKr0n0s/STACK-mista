@@ -315,8 +315,8 @@ export default function PlanPage() {
           await loadPlan()
         }
       }
-    } catch {
-      // offline
+    } catch (err) {
+      console.error('Plan page load failed:', err)
     } finally {
       setLoading(false)
     }
@@ -329,14 +329,14 @@ export default function PlanPage() {
         const data = await res.json()
         if (data.plan_content) {
           setPlan(data)
-          // Auto-regenerate if plan is from a previous week
+          // Auto-regenerate in background if plan is from a previous week
           if (data.stale && data.regenerations_today < 3) {
-            await generatePlan()
+            generatePlan().catch(() => {})
           }
         }
       }
-    } catch {
-      // no plan yet
+    } catch (err) {
+      console.error('Load plan failed:', err)
     }
   }
 

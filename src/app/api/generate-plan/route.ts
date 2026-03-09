@@ -87,7 +87,7 @@ export async function POST() {
   // Get user profile
   const { data: profile } = await supabase
     .from('users')
-    .select('*')
+    .select('name, age, weight, target_weight, activity_level, protein_preference, dietary_restrictions, foods_to_avoid, fasting_start_hour, fasting_end_hour, current_week, program_start_date, profile_completed')
     .eq('id', user.id)
     .single()
 

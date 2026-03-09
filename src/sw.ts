@@ -18,6 +18,15 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope
 
+// IMPORTANT: Service Worker setTimeout timers are UNRELIABLE.
+// The browser may terminate the SW at any time when idle.
+// These timers are "best-effort" — the primary notification mechanism
+// is the client-side timers in src/lib/notifications.ts.
+// For reliable notifications when browser is closed, we would need
+// server-side Push API, which is not yet implemented.
+let fastingHalfwayTimer: ReturnType<typeof setTimeout> | null = null
+let fastingCompleteTimer: ReturnType<typeof setTimeout> | null = null
+
 const APP_PAGES = ['/dashboard', '/plan', '/progress', '/settings', '/onboarding']
 
 const serwist = new Serwist({
@@ -105,6 +114,49 @@ self.addEventListener('message', (event: ExtendableMessageEvent) => {
       )
       return Promise.all(toDelete.map((n) => caches.delete(n)))
     })
+  }
+
+  // Fasting session notifications (best-effort background)
+  if (event.data?.type === 'SCHEDULE_FASTING') {
+    const { startedAt, durationMs } = event.data
+    const now = Date.now()
+    const elapsed = now - startedAt
+    const halfwayDelay = (durationMs / 2) - elapsed
+    const completeDelay = durationMs - elapsed
+
+    if (fastingHalfwayTimer) clearTimeout(fastingHalfwayTimer)
+    if (fastingCompleteTimer) clearTimeout(fastingCompleteTimer)
+
+    if (halfwayDelay > 0) {
+      fastingHalfwayTimer = setTimeout(() => {
+        self.registration.showNotification('Metade do jejum! 💪', {
+          body: 'Voce ja passou da metade. Continue firme!',
+          icon: '/icons/icon-192.png',
+          badge: '/icons/icon-192.png',
+          tag: 'fasting-halfway',
+          data: { url: '/dashboard', type: 'fasting-halfway' },
+        })
+        fastingHalfwayTimer = null
+      }, halfwayDelay)
+    }
+
+    if (completeDelay > 0) {
+      fastingCompleteTimer = setTimeout(() => {
+        self.registration.showNotification('Jejum completo! 🎉', {
+          body: 'Parabens! Voce completou seu jejum. Hora de se alimentar!',
+          icon: '/icons/icon-192.png',
+          badge: '/icons/icon-192.png',
+          tag: 'fasting-complete',
+          data: { url: '/dashboard', type: 'fasting-complete' },
+        })
+        fastingCompleteTimer = null
+      }, completeDelay)
+    }
+  }
+
+  if (event.data?.type === 'CANCEL_FASTING') {
+    if (fastingHalfwayTimer) { clearTimeout(fastingHalfwayTimer); fastingHalfwayTimer = null }
+    if (fastingCompleteTimer) { clearTimeout(fastingCompleteTimer); fastingCompleteTimer = null }
   }
 })
 

@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Loader2 } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
 
 interface EmailLoginFormProps {
   title?: string
@@ -44,18 +43,8 @@ export function EmailLoginForm({
         throw new Error(data.error || 'Erro ao entrar')
       }
 
-      // Set the session on the client
-      const supabase = createClient()
-      const { error: sessionError } = await supabase.auth.setSession({
-        access_token: data.access_token,
-        refresh_token: data.refresh_token,
-      })
-
-      if (sessionError) {
-        throw sessionError
-      }
-
-      // Callback or redirect
+      // Session is now set via httpOnly cookies server-side
+      // Just redirect
       if (onSuccess) {
         onSuccess()
       } else {

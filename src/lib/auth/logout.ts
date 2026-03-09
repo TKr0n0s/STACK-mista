@@ -1,6 +1,7 @@
 import { db } from '@/lib/db/schema'
 import { useStore } from '@/lib/store'
 import { createClient } from '@/lib/supabase/client'
+import { resetUserIdCache } from '@/hooks/use-user-id'
 
 export async function logout() {
   // 1. Clear IndexedDB
@@ -17,14 +18,21 @@ export async function logout() {
     console.error('Failed to clear SW cache', e)
   }
 
-  // 3. Clear Zustand
+  // 3. Clear localStorage
+  try {
+    localStorage.clear()
+  } catch (e) {
+    console.error('Failed to clear localStorage', e)
+  }
+
+  // 4. Clear Zustand
   try {
     useStore.getState().reset()
   } catch (e) {
     console.error('Failed to reset store', e)
   }
 
-  // 4. Signout Supabase
+  // 5. Signout Supabase
   try {
     const supabase = createClient()
     await supabase.auth.signOut()
@@ -32,6 +40,9 @@ export async function logout() {
     console.error('Failed to sign out', e)
   }
 
-  // 5. Redirect
+  // 6. Reset userId cache
+  resetUserIdCache()
+
+  // 7. Redirect
   window.location.href = '/login'
 }

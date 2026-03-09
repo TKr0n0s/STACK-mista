@@ -1,10 +1,39 @@
 'use client'
 
+import React, { useState, useRef, useEffect } from 'react'
 import { useTimer } from '@/hooks/use-timer'
 import { Button } from '@/components/ui/button'
 import { FastingPhases } from '@/components/fasting-phases'
-import { Play, Square } from 'lucide-react'
+import { Celebration } from '@/components/celebration'
+import { Play, Square, Check } from 'lucide-react'
 import { getFastingRatio } from '@/lib/fasting-utils'
+
+const TickMarks = React.memo(function TickMarks({ size, radius }: { size: number; radius: number }) {
+  return (
+    <>
+      {Array.from({ length: 16 }).map((_, i) => {
+        const angle = (i / 16) * 2 * Math.PI - Math.PI / 2
+        const isMajor = i % 4 === 0
+        const innerR = isMajor ? radius - 16 : radius - 10
+        const outerR = radius - 5
+        const x1 = size / 2 + innerR * Math.cos(angle)
+        const y1 = size / 2 + innerR * Math.sin(angle)
+        const x2 = size / 2 + outerR * Math.cos(angle)
+        const y2 = size / 2 + outerR * Math.sin(angle)
+        return (
+          <line
+            key={i}
+            x1={x1} y1={y1} x2={x2} y2={y2}
+            stroke={isMajor ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'}
+            strokeWidth={isMajor ? 1.5 : 0.8}
+            opacity={isMajor ? 0.25 : 0.15}
+            strokeLinecap="round"
+          />
+        )
+      })}
+    </>
+  )
+})
 
 interface FastingTimerProps {
   durationMs?: number
@@ -23,9 +52,21 @@ export function FastingTimer({ durationMs, startHour = 20, endHour = 12 }: Fasti
     startFasting,
     stopFasting,
     isComplete,
-  } = useTimer(durationMs)
+  } = useTimer(durationMs, endHour, startHour)
 
   const isFasting = fastingState === 'fasting'
+  const [showCelebration, setShowCelebration] = useState(false)
+  const celebratedRef = useRef(false)
+
+  useEffect(() => {
+    if (isComplete && isFasting && !celebratedRef.current) {
+      celebratedRef.current = true
+      setShowCelebration(true)
+    }
+    if (!isFasting) {
+      celebratedRef.current = false
+    }
+  }, [isComplete, isFasting])
 
   const size = 240
   const strokeWidth = 8
@@ -77,27 +118,8 @@ export function FastingTimer({ durationMs, startHour = 20, endHour = 12 }: Fasti
               strokeWidth={strokeWidth}
               opacity={0.35}
             />
-            {/* Hour marks */}
-            {Array.from({ length: 16 }).map((_, i) => {
-              const angle = (i / 16) * 2 * Math.PI - Math.PI / 2
-              const isMajor = i % 4 === 0
-              const innerR = isMajor ? radius - 16 : radius - 10
-              const outerR = radius - 5
-              const x1 = size / 2 + innerR * Math.cos(angle)
-              const y1 = size / 2 + innerR * Math.sin(angle)
-              const x2 = size / 2 + outerR * Math.cos(angle)
-              const y2 = size / 2 + outerR * Math.sin(angle)
-              return (
-                <line
-                  key={i}
-                  x1={x1} y1={y1} x2={x2} y2={y2}
-                  stroke={isMajor ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'}
-                  strokeWidth={isMajor ? 1.5 : 0.8}
-                  opacity={isMajor ? 0.25 : 0.15}
-                  strokeLinecap="round"
-                />
-              )
-            })}
+            {/* Hour marks — memoized to avoid recalculation on every tick */}
+            <TickMarks size={size} radius={radius} />
             {/* Progress arc */}
             {isFasting && (
               <>
@@ -146,16 +168,35 @@ export function FastingTimer({ durationMs, startHour = 20, endHour = 12 }: Fasti
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             {isFasting ? (
               <>
-                <span className={`text-[10px] font-bold uppercase tracking-[0.2em] ${isComplete ? 'text-secondary' : 'text-primary/70'}`}>
-                  {isComplete ? 'Completo!' : 'Em Jejum'}
-                </span>
-                <p className="mt-1 font-mono text-[44px] font-bold leading-none tabular-nums text-foreground tracking-tight">
-                  {pad(hours)}:{pad(minutes)}
-                </p>
-                <p className="mt-0.5 font-mono text-sm text-muted-foreground/60 tabular-nums">
-                  :{pad(seconds)}
-                </p>
-                <FastingPhases elapsedHours={elapsedHours} />
+                {isComplete ? (
+                  <>
+                    <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-secondary/20 animate-bounce">
+                      <Check size={24} className="text-secondary" />
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-secondary">
+                      Jejum Completo!
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Parabens! Voce conseguiu!
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/70">
+                      Em Jejum
+                    </span>
+                    <p role="timer" aria-live="off" className="mt-1 font-mono text-[44px] font-bold leading-none tabular-nums text-foreground tracking-tight">
+                      {pad(hours)}:{pad(minutes)}
+                    </p>
+                    <p className="mt-0.5 font-mono text-sm text-muted-foreground/60 tabular-nums">
+                      :{pad(seconds)}
+                    </p>
+                    <span role="status" aria-live="polite" className="sr-only">
+                      {isComplete ? 'Jejum completo' : `${hours} horas e ${minutes} minutos restantes`}
+                    </span>
+                    <FastingPhases elapsedHours={elapsedHours} />
+                  </>
+                )}
               </>
             ) : (
               <>
@@ -192,6 +233,7 @@ export function FastingTimer({ durationMs, startHour = 20, endHour = 12 }: Fasti
           )}
         </Button>
       </div>
+      <Celebration show={showCelebration} message="Jejum completo!" emoji="🏆" onDone={() => setShowCelebration(false)} />
     </div>
   )
 }

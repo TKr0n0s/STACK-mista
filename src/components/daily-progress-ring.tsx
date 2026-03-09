@@ -12,10 +12,11 @@ const WATER_TARGET = 8
 export function DailyProgressRing() {
   const [tasksDone, setTasksDone] = useState(0)
   const { waterCups, fastingState } = useStore()
-  const userId = useUserId()
+  const { userId, isLoading: userIdLoading } = useUserId()
   const totalTasks = 4 // breakfast, lunch, dinner, exercise
 
   useEffect(() => {
+    if (userIdLoading || userId === 'anonymous') return
     async function load() {
       try {
         const today = getTodayKey()
@@ -30,10 +31,9 @@ export function DailyProgressRing() {
     }
     load()
 
-    // Re-check periodically (30s — tasks don't change that often)
     const interval = setInterval(load, 30000)
     return () => clearInterval(interval)
-  }, [userId])
+  }, [userId, userIdLoading])
 
   // Calculate overall progress (tasks: 40%, water: 30%, fasting: 30%)
   const taskProgress = tasksDone / totalTasks

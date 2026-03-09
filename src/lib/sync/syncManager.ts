@@ -83,21 +83,32 @@ export async function enqueueSync(
   }
 }
 
-export function initSyncListeners() {
-  window.addEventListener('online', () => {
-    processSyncQueue().catch(() => {})
-  })
+let listenersInitialized = false
+let cleanupIntervalId: ReturnType<typeof setInterval> | null = null
 
-  // iOS doesn't fire 'online' reliably
-  document.addEventListener('visibilitychange', () => {
+export function initSyncListeners() {
+  if (listenersInitialized) return
+  listenersInitialized = true
+
+  const onOnline = () => { processSyncQueue().catch(() => {}) }
+  const onVisibilityChange = () => {
     if (document.visibilityState === 'visible' && navigator.onLine) {
       processSyncQueue().catch(() => {})
     }
-  })
+  }
 
-  // Run cleanup on init and periodically
+  window.addEventListener('online', onOnline)
+  document.addEventListener('visibilitychange', onVisibilityChange)
+
   cleanupOldFailedItems().catch(() => {})
-  setInterval(() => {
+  cleanupIntervalId = setInterval(() => {
     cleanupOldFailedItems().catch(() => {})
-  }, 60 * 60 * 1000) // Every hour
+  }, 60 * 60 * 1000)
+
+  return () => {
+    window.removeEventListener('online', onOnline)
+    document.removeEventListener('visibilitychange', onVisibilityChange)
+    if (cleanupIntervalId) clearInterval(cleanupIntervalId)
+    listenersInitialized = false
+  }
 }

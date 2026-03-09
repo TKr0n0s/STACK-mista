@@ -42,10 +42,11 @@ export function TaskChecklist({ day }: TaskChecklistProps) {
   })
   const [showCelebration, setShowCelebration] = useState(false)
   const [lastToggled, setLastToggled] = useState<string | null>(null)
-  const userId = useUserId()
+  const { userId, isLoading: userIdLoading } = useUserId()
   const router = useRouter()
 
   useEffect(() => {
+    if (userIdLoading || userId === 'anonymous') return
     async function load() {
       try {
         const today = getTodayKey()
@@ -64,7 +65,7 @@ export function TaskChecklist({ day }: TaskChecklistProps) {
       }
     }
     load()
-  }, [userId])
+  }, [userId, userIdLoading])
 
   const toggleTask = useCallback(async function toggleTask(taskType: TaskType, e: React.MouseEvent) {
     e.stopPropagation()

@@ -30,8 +30,11 @@ export default function DashboardPage() {
     setLoading(true)
     setFetchError(false)
     try {
-      // Fetch profile first
-      const profileRes = await fetch('/api/user/profile')
+      // Fetch profile and plan in parallel
+      const [profileRes, planRes] = await Promise.all([
+        fetch('/api/user/profile'),
+        fetch('/api/generate-plan'),
+      ])
 
       let programDay = 1
       let weekNumber = 1
@@ -70,7 +73,6 @@ export default function DashboardPage() {
       // Try AI plan first — if available and valid JSON, use its meals
       let usedAIPlan = false
       try {
-        const planRes = await fetch('/api/generate-plan')
         if (planRes.ok) {
           const planData = await planRes.json()
           if (planData.plan_content) {
@@ -118,7 +120,8 @@ export default function DashboardPage() {
           throw new Error('Failed to load week data')
         }
       }
-    } catch {
+    } catch (err) {
+      console.error('Dashboard load failed:', err)
       setFetchError(true)
     } finally {
       setLoading(false)
